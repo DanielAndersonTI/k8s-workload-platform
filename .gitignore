@@ -1,0 +1,24 @@
+# Credentials and local cloud configuration
+*.pem
+*.key
+clouds.yaml
+*openrc*.sh
+.env
+docker.env
+session.env
+vdi.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Local state and logs
+.kube/
+*.log
+logs-*.txt
+
+# Operating system and editor files
+Thumbs.db
+desktop.ini
+.vscode/
