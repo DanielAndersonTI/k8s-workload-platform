@@ -1,0 +1,22 @@
+# T2.6 - Recursos e sistema da VM
+# ambiente: VM vm-atividade5-k8s, acesso SSH pela porta 2223 do balanceador
+# data UTC: 2026-11-22T00:40:36Z
+
+$ hostname; uname -sr; . /etc/os-release; echo $PRETTY_NAME
+vm-atividade5-k8s
+Linux 6.8.0-87-generic
+Ubuntu 24.04.3 LTS
+
+$ nproc
+4
+
+$ free -m
+               total        used        free      shared  buff/cache   available
+Mem:            7941         452        7481           4         244        7488
+
+$ df -h /
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/vda1        19G  1.7G   17G   9% /
+
+$ cloud-init status
+status: done

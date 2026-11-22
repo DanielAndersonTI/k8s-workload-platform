@@ -1,0 +1,27 @@
+# T2.3 - VM vm-atividade5-k8s
+# ambiente: VDI osboxes, projeto Provisionamento
+# data UTC: 2026-11-22T00:40:36Z
+# o campo adminPass foi omitido de proposito
+
+$ . ~/atividade3/automation/cloud_login.sh; cloud_login
+$ openstack server show vm-atividade5-k8s -f value \
+    -c id -c name -c status -c addresses -c flavor -c key_name \
+    -c security_groups -c created
+{'provider': ['10.5.11.226']}
+2026-11-22T00:28:06Z
+general.large (be9875d8-f22b-426e-91e1-79f04c705c09)
+8c77dbe6-dd33-43ba-9d96-939ddfd5effa
+atividade5
+vm-atividade5-k8s
+[{'name': 'sg-atividade5'}]
+ACTIVE
+
+$ openstack server show vm-atividade5-k8s -f value -c "OS-EXT-AZ:availability_zone"
+nova
+
+$ openstack port list --server vm-atividade5-k8s -f value -c "Fixed IP Addresses"
+[{'subnet_id': '17de9c72-e5dc-4da0-ae0a-013f7e42400e', 'ip_address': '10.5.11.226'}]
+
+# ID: 8c77dbe6-dd33-43ba-9d96-939ddfd5effa
+# Endereco: 10.5.11.226, subnet 17de9c72-e5dc-4da0-ae0a-013f7e42400e
+# Zona: nova (padrao da imagem), status ACTIVE

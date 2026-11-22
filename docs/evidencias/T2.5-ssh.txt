@@ -1,0 +1,26 @@
+# T2.5 - Acesso SSH a VM pelo balanceador
+# ambiente: VDI osboxes -> VIP 150.165.85.77:2223 -> 10.5.11.226:22
+# data UTC: 2026-11-22T00:40:36Z
+# a VDI nao alcanca a rede provider diretamente; o listener ssh-atividade5
+# (porta 2223) foi criado no balanceador ACTIVE para encaminhar o SSH
+
+$ ssh -i ~/.ssh/atividade5 -p 2223 ubuntu@150.165.85.77 \
+    'hostname; whoami; uname -sr; . /etc/os-release; echo $PRETTY_NAME'
+vm-atividade5-k8s
+ubuntu
+Linux 6.8.0-87-generic
+Ubuntu 24.04.3 LTS
+
+$ openstack loadbalancer listener show ssh-atividade5 -f value \
+    -c name -c protocol -c protocol_port -c provisioning_status -c operating_status
+ssh-atividade5
+ONLINE
+TCP
+2223
+ACTIVE
+
+$ openstack loadbalancer member list pool-ssh-atividade5 -f value \
+    -c name -c address -c protocol_port -c operating_status
+vm-atividade5-k8s 10.5.11.226 22 ONLINE
+
+# Os listeners da A4 em 8100 a 8102 e 2222 nao foram alterados.

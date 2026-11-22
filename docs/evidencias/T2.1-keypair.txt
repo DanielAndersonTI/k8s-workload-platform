@@ -1,0 +1,10 @@
+# T2.1 - Keypair atividade5
+# ambiente: VDI osboxes, projeto Provisionamento
+# data UTC: 2026-11-22T00:40:36Z
+# a chave privada fica em ~/.ssh/atividade5 na VDI e nao entra no repositorio
+
+$ . ~/atividade3/automation/cloud_login.sh; cloud_login
+$ openstack keypair show atividade5 -f value -c name -c type -c fingerprint
+7b:71:6d:8e:2a:93:04:cf:db:60:fc:16:16:f7:49:16
+atividade5
+ssh

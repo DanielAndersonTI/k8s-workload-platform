@@ -54,22 +54,25 @@ O commit e o push são manuais, sem coautoria automatizada.
 | T1.4 | Manter a VM e o volume da Atividade 4 e criar a A5 em paralelo | [x] |
 | T1.5 | Definir a tag `1.1.0` para as imagens da A5 | [x] |
 | T1.6 | Definir pasta, nomes e sanitização das evidências | [x] |
-| T1.7 | Definir formato e link do relatório final | [ ] |
+| T1.7 | Definir formato e link do relatório final | [x] |
 
-As decisões T1.2 a T1.6 foram fechadas antes da execução. A confirmação ao vivo
-da sessão e da cota continua pendente porque depende da VDI ligada.
+As decisões T1.2 a T1.6 foram fechadas antes da execução. A sessão e a cota
+foram confirmadas ao vivo em 22/11/2026, com evidência em `T1.1-sessao-cota.txt`.
+
+O relatório final fica em `docs/relatorio-final.md` e será exportado em PDF. A
+entrega usa o link do arquivo no repositório e o PDF anexado no formulário.
 
 ## Fase 2 — Provisionamento da VM
 
 | ID | Tarefa | Estado |
 | --- | --- | --- |
-| T2.1 | Criar o keypair `atividade5` e registrar a chave pública | [ ] |
-| T2.2 | Criar o security group `sg-atividade5` com as regras restritas | [ ] |
-| T2.3 | Criar a VM `vm-atividade5-k8s` com `general.large` e Ubuntu 24.04 | [ ] |
-| T2.4 | Registrar ID, endereço e zona da instância | [ ] |
-| T2.5 | Acessar a VM por SSH | [ ] |
-| T2.6 | Confirmar CPU, memória, disco e versão do sistema | [ ] |
-| T2.7 | Registrar as evidências `T2.1-keypair`, `T2.2-sg` e `T2.3-vm-show` | [ ] |
+| T2.1 | Criar o keypair `atividade5` e registrar a chave pública | [x] |
+| T2.2 | Criar o security group `sg-atividade5` com as regras restritas | [x] |
+| T2.3 | Criar a VM `vm-atividade5-k8s` com `general.large` e Ubuntu 24.04 | [x] |
+| T2.4 | Registrar ID, endereço e zona da instância | [x] |
+| T2.5 | Acessar a VM por SSH | [x] |
+| T2.6 | Confirmar CPU, memória, disco e versão do sistema | [x] |
+| T2.7 | Registrar as evidências `T2.1-keypair`, `T2.2-sg` e `T2.3-vm-show` | [x] |
 
 ## Fase 3 — Instalação do cluster
 

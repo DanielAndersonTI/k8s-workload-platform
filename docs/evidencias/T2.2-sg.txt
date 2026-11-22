@@ -1,0 +1,20 @@
+# T2.2 - Security group sg-atividade5
+# ambiente: VDI osboxes, projeto Provisionamento
+# data UTC: 2026-11-22T00:40:36Z
+
+$ . ~/atividade3/automation/cloud_login.sh; cloud_login
+$ openstack security group show sg-atividade5 -f value -c name -c id -c description
+A5 Kubernetes access from the load balancer
+60a6425a-578b-4628-8663-597d57622992
+sg-atividade5
+
+$ openstack security group rule list sg-atividade5 -f table
++--------------------------------------+-------------+-----------+-------------+------------+-----------+-----------------------+----------------------+
+| ID                                   | IP Protocol | Ethertype | IP Range    | Port Range | Direction | Remote Security Group | Remote Address Group |
++--------------------------------------+-------------+-----------+-------------+------------+-----------+-----------------------+----------------------+
+| 08f055a5-2901-4b79-a2f0-aed4280f3a5d | tcp         | IPv4      | 10.5.8.0/22 | 22:22      | ingress   | None                  | None                 |
+| 4a40ed36-9aee-4675-823a-d748261b6a2c | tcp         | IPv4      | 10.5.8.0/22 | 8000:8002  | ingress   | None                  | None                 |
+| 86160bee-100c-43e6-b1e4-dec6f4d8f0f0 | icmp        | IPv4      | 10.5.8.0/22 |            | ingress   | None                  | None                 |
+| a202ee62-aaf4-475e-8d1f-a39fbc36a808 | None        | IPv6      | ::/0        |            | egress    | None                  | None                 |
+| e91846ff-f265-455c-b9d0-b3b8e34e7f4d | None        | IPv4      | 0.0.0.0/0   |            | egress    | None                  | None                 |
++--------------------------------------+-------------+-----------+-------------+------------+-----------+-----------------------+----------------------+

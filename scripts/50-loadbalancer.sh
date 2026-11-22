@@ -30,7 +30,7 @@ fi
 
 if [ -z "$VM_IP" ]; then
   VM_IP="$(openstack server show "$VM_NAME" -f value -c addresses \
-    | tr ',' '\n' | sed -n 's/.*=//p' | head -n1)"
+    | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' | head -n1)"
 fi
 
 if [ -z "$VM_IP" ]; then
@@ -61,8 +61,8 @@ create_app_listener() {
   local monitor="hm-app-${profile}-atividade5"
 
   if listener_exists "$listener"; then
-    echo "listener already exists: ${listener}" >&2
-    return 1
+    echo "listener already exists: ${listener}"
+    return 0
   fi
   if port_in_use "$external_port"; then
     echo "port ${external_port} is already used by another listener" >&2
@@ -101,47 +101,51 @@ create_app_listener() {
   echo "created ${listener}: ${external_port} -> ${VM_IP}:${target_port}"
 }
 
-create_app_listener cpu 8600 8000
-create_app_listener memory 8601 8001
-create_app_listener io 8602 8002
+if [ "${SSH_ONLY:-0}" = "1" ]; then
+  echo "SSH_ONLY=1: skipping the application listeners"
+else
+  create_app_listener cpu 8600 8000
+  create_app_listener memory 8601 8001
+  create_app_listener io 8602 8002
+fi
 
 if listener_exists "ssh-atividade5"; then
-  echo "listener already exists: ssh-atividade5" >&2
-  exit 1
+  echo "ssh listener already exists: ssh-atividade5"
+else
+  if port_in_use 2223; then
+    echo "port 2223 is already used by another listener" >&2
+    exit 1
+  fi
+
+  openstack loadbalancer listener create \
+    --name ssh-atividade5 \
+    --protocol TCP \
+    --protocol-port 2223 \
+    "$LB_ID" --wait
+
+  openstack loadbalancer pool create \
+    --name pool-ssh-atividade5 \
+    --lb-algorithm ROUND_ROBIN \
+    --listener ssh-atividade5 \
+    --protocol TCP --wait
+
+  openstack loadbalancer healthmonitor create \
+    --name hm-ssh-atividade5 \
+    --delay 5 \
+    --timeout 4 \
+    --max-retries 3 \
+    --type TCP \
+    pool-ssh-atividade5 --wait
+
+  openstack loadbalancer member create \
+    --name "$VM_NAME" \
+    --subnet-id "$SUBNET_ID" \
+    --address "$VM_IP" \
+    --protocol-port 22 \
+    pool-ssh-atividade5 --wait
+
+  echo "created ssh-atividade5: 2223 -> ${VM_IP}:22"
 fi
-if port_in_use 2223; then
-  echo "port 2223 is already used by another listener" >&2
-  exit 1
-fi
-
-openstack loadbalancer listener create \
-  --name ssh-atividade5 \
-  --protocol TCP \
-  --protocol-port 2223 \
-  "$LB_NAME" --wait
-
-openstack loadbalancer pool create \
-  --name pool-ssh-atividade5 \
-  --lb-algorithm ROUND_ROBIN \
-  --listener ssh-atividade5 \
-  --protocol TCP --wait
-
-openstack loadbalancer healthmonitor create \
-  --name hm-ssh-atividade5 \
-  --delay 5 \
-  --timeout 4 \
-  --max-retries 3 \
-  --type TCP \
-  pool-ssh-atividade5 --wait
-
-openstack loadbalancer member create \
-  --name "$VM_NAME" \
-  --subnet-id "$SUBNET_ID" \
-  --address "$VM_IP" \
-  --protocol-port 22 \
-  pool-ssh-atividade5 --wait
-
-echo "created ssh-atividade5: 2223 -> ${VM_IP}:22"
 
 echo
 echo "waiting for the load balancer to converge"
