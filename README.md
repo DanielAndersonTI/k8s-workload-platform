@@ -2,7 +2,9 @@
 
 Three HTTP services with distinct resource profiles, packaged as containers and
 scheduled by Kubernetes on a single-node Minikube cluster. An OpenStack Octavia
-load balancer publishes the services externally on fixed ports.
+load balancer publishes the services on ports 8600 to 8602. The existing
+listeners on 8100 to 8102 remain assigned to the previous Docker Compose
+environment, so both deployments coexist.
 
 The services expose the same contract: `GET /health`, `GET /work?size=N`, and
 `GET /metrics`. The first is used by Kubernetes probes and by the load balancer
@@ -13,7 +15,7 @@ counters.
 
 ```text
 client
-  |  HTTP 8100 / 8101 / 8102
+  |  HTTP 8600 / 8601 / 8602
   v
 OpenStack Octavia (poi-atividades)
   |  TCP 8000 / 8001 / 8002
@@ -28,17 +30,20 @@ Ubuntu VM, 4 vCPU and 8 GB RAM
            Deployments, 2 replicas each
 ```
 
-The load balancer and its listeners are inherited infrastructure. The cluster
-only has to answer on the same host ports used by the previous deployment
-model, so the external contract does not change.
+The load balancer is shared infrastructure. This platform creates its own
+listeners, pools and health monitors on ports 8600 to 8602, plus an SSH listener
+on port 2223. The cluster answers on host ports 8000 to 8002, which the new
+listeners target. The previous environment keeps its listeners on ports 8100 to
+8102 and its SSH listener on port 2222. Ports 8600 to 8602 were chosen because
+the shared balancer already uses 8201 for another group.
 
 ## Workloads
 
 | Service | Image | Behavior | NodePort | External port |
 | --- | --- | --- | --- | --- |
-| CPU | `danielandersonss/poi-cpu:1.0.0` | Iterated SHA-256 over a buffer | 30080 | 8100 |
-| Memory | `danielandersonss/poi-memory:1.0.0` | Allocates and touches `size` MiB | 30081 | 8101 |
-| I/O | `danielandersonss/poi-io:1.0.0` | Writes and reads a scratch file | 30082 | 8102 |
+| CPU | `danielandersonss/poi-cpu:1.1.0` | Iterated SHA-256 over a buffer | 30080 | 8600 |
+| Memory | `danielandersonss/poi-memory:1.1.0` | Allocates and touches `size` MiB | 30081 | 8601 |
+| I/O | `danielandersonss/poi-io:1.1.0` | Writes and reads a scratch file | 30082 | 8602 |
 
 `size` is interpreted in iterations for CPU, MiB for memory, and KiB for I/O.
 Each service validates its own range and returns `400` outside it.
@@ -69,44 +74,71 @@ apps/                   Application sources and the shared Dockerfile
 k8s/                    Namespace, Deployments, Services and Kustomization
 scripts/                Provisioning, bootstrap, deploy and verification
 docs/background.md      Service behavior and design context
-docs/deployment-report.pt-BR.md   Deployment report
+docs/evidencias/        Evidence policy and sanitized command output
+docs/execucao-atividade5/         Execution log, one record per task
+docs/relatorio-final.md           Final deployment report
 ```
 
 ## Prerequisites
 
 - OpenStack CLI configured for the target project, with permission to create
-  instances and edit the existing load balancer.
-- An SSH key pair already registered in OpenStack.
+  instances, security groups and load balancer listeners.
+- `ssh-keygen` available on the machine that runs `00-openstack.sh`; the script
+  creates the `atividade5` key pair and registers the public key.
 - Docker images published to Docker Hub, as listed above.
 - On the VM: Ubuntu 24.04, Docker Engine, `kubectl`, and `minikube`.
 
 ## Deployment
 
-Run the scripts in order. The first creates the VM; the remaining ones run on
-the VM, inside a clone of this repository.
+Scripts `00` and `50` run on the machine with the OpenStack CLI, the access VDI.
+Scripts `10` to `40` run on the new VM, inside a clone of this repository.
+Script `05` runs on any host with Docker, after `00` and before `30`.
+
+On the access VDI, create the key pair, the security group and the VM:
 
 ```bash
-export VM_NAME=workload-platform
+git clone https://github.com/DanielAndersonTI/k8s-workload-platform.git
+cd k8s-workload-platform
+export VM_NAME=vm-atividade5-k8s
 export FLAVOR=general.large
 export IMAGE=ubuntu-24.04
-export KEYPAIR=your-keypair
+export KEYPAIR=atividade5
+export SECGROUP=sg-atividade5
 bash scripts/00-openstack.sh
 ```
+
+On the VM, install the runtime and deploy:
 
 ```bash
 git clone https://github.com/DanielAndersonTI/k8s-workload-platform.git
 cd k8s-workload-platform
 sudo bash scripts/10-bootstrap.sh
 newgrp docker
+cp docker.env.example docker.env
+# edit docker.env and set DOCKERHUB_USER and DOCKERHUB_TOKEN
+bash scripts/05-images.sh
 bash scripts/20-cluster.sh
 bash scripts/30-deploy.sh
 bash scripts/40-verify.sh
 ```
 
+Back on the access VDI, create the A5 listeners. `SUBNET_ID` is the subnet of
+the VM, `17de9c72-e5dc-4da0-ae0a-013f7e42400e` in the current project:
+
+```bash
+export SUBNET_ID=17de9c72-e5dc-4da0-ae0a-013f7e42400e
+bash scripts/50-loadbalancer.sh
+```
+
 `10-bootstrap.sh` installs Docker, `kubectl`, and `minikube`, and disables swap.
+`05-images.sh` builds each profile from `apps/Dockerfile` and pushes the `1.1.0`
+tags, leaving the `1.0.0` images from the previous activity untouched. The
+Docker Hub token is read from `docker.env`, which is never committed.
 `20-cluster.sh` starts Minikube with the Docker driver and publishes host ports
 8000 to 8002. After changing group membership, open a new shell or run
-`newgrp docker` before starting the cluster.
+`newgrp docker` before starting the cluster. `50-loadbalancer.sh` creates the
+listeners on 8600 to 8602 and the SSH listener on 2223, without changing the A4
+listeners.
 
 ## Operational checks
 
@@ -118,9 +150,11 @@ curl -sS "http://127.0.0.1:8002/work?size=1024"
 ```
 
 From outside the VM, the same checks use the load balancer address on ports
-8100, 8101, and 8102.
+8600, 8601, and 8602. Ports 8100 to 8102 must keep answering for the previous
+environment, which is a separate validation.
 
 ## Documentation
 
 - [Service behavior and design context](docs/background.md)
-- [Deployment report](docs/deployment-report.pt-BR.md)
+- [Evidence policy](docs/evidencias/README.md)
+- [Final deployment report](docs/relatorio-final.md)

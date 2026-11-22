@@ -66,7 +66,7 @@ argument and published to Docker Hub:
 
 ```bash
 docker build -f apps/Dockerfile --build-arg PROFILE=cpu \
-  -t danielandersonss/poi-cpu:1.0.0 .
+  -t danielandersonss/poi-cpu:1.1.0 .
 ```
 
 The runtime image runs as UID/GID 10001, exposes port 8000, and declares a

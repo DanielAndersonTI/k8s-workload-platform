@@ -51,9 +51,9 @@
 
 | Aplicação | Imagem | Porta interna | Porta do nó | Porta externa |
 | --- | --- | --- | --- | --- |
-| CPU | `danielandersonss/poi-cpu:1.0.0` | 8000 | 30080 | 8100 |
-| Memória | `danielandersonss/poi-memory:1.0.0` | 8000 | 30081 | 8101 |
-| I/O | `danielandersonss/poi-io:1.0.0` | 8000 | 30082 | 8102 |
+| CPU | `danielandersonss/poi-cpu:1.1.0` | 8000 | 30080 | 8600 |
+| Memória | `danielandersonss/poi-memory:1.1.0` | 8000 | 30081 | 8601 |
+| I/O | `danielandersonss/poi-io:1.1.0` | 8000 | 30082 | 8602 |
 
 [PREENCHER: data do build, tamanho das imagens e confirmação de que são públicas no Docker Hub.]
 
@@ -63,11 +63,11 @@
 
 ### 3.3 Exposição pelo balanceador
 
-[PREENCHER: como o membro do pool foi apontado para o novo endereço da VM, quais listeners foram preservados e qual foi o resultado de `openstack loadbalancer member list`.]
+[PREENCHER: quais listeners, pools, monitores e membros foram criados para a A5 nas portas 8600 a 8602, qual listener SSH foi criado na porta 2223 e qual foi o resultado de `openstack loadbalancer member list`. Registrar que os listeners da A4 em 8100 a 8102 e 2222 foram preservados.]
 
 ### 3.4 Verificação
 
-[PREENCHER: resultado de `/health` e `/work` nas três portas, pela VIP e pelo endereço local. Inserir tempos de resposta e códigos HTTP.]
+[PREENCHER: resultado de `/health` e `/work` nas três portas 8600, 8601 e 8602, pela VIP e pelo endereço local. Inserir tempos de resposta e códigos HTTP. Confirmar também que as portas 8100 a 8102 da A4 continuam respondendo.]
 
 ### 3.5 Teste de falha
 

@@ -6,7 +6,7 @@
 #
 # Build from the repository root:
 #   docker build -f apps/Dockerfile --build-arg PROFILE=cpu \
-#     -t USER/poi-cpu:1.0.0 .
+#     -t USER/poi-cpu:1.1.0 .
 #
 FROM python:3.12-slim
 

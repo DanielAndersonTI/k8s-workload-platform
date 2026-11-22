@@ -7,7 +7,8 @@
 set -euo pipefail
 
 LB_VIP="${LB_VIP:-150.165.85.77}"
-LB_PORTS="${LB_PORTS:-8100 8101 8102}"
+LB_PORTS="${LB_PORTS:-8600 8601 8602}"
+A4_PORTS="${A4_PORTS:-8100 8101 8102}"
 LOCAL_PORTS="8000 8001 8002"
 
 show_health() {
@@ -26,8 +27,14 @@ for port in $LOCAL_PORTS; do
 done
 
 echo
-echo "load balancer endpoints"
+echo "A5 load balancer endpoints"
 for port in $LB_PORTS; do
+  show_health "http://${LB_VIP}:${port}/health"
+done
+
+echo
+echo "A4 endpoints preserved"
+for port in $A4_PORTS; do
   show_health "http://${LB_VIP}:${port}/health"
 done
 

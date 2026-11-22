@@ -1,0 +1,58 @@
+# T1.1 - Sessao, projeto, cota e portas do balanceador
+# ambiente: VDI osboxes (Linux 5.15.0-198-generic), acesso SSH em 127.0.0.1:2222
+# data UTC: 2026-11-22T00:22:03Z
+# autenticacao: session.env local da VDI + cloud_login.sh; nenhuma credencial neste arquivo
+
+$ . ~/atividade3/automation/cloud_login.sh; cloud_login
+$ openstack token issue -f value -c expires
+2026-11-23T00:15:21+0000
+
+$ openstack limits show --absolute -f value
+maxTotalInstances 45
+maxTotalCores 64
+maxTotalRAMSize 131072
+maxTotalVolumes 50
+maxTotalVolumeGigabytes 700
+totalInstancesUsed 30
+totalCoresUsed 49
+totalRAMUsed 100352
+totalVolumesUsed 37
+totalGigabytesUsed 252
+
+$ openstack flavor show general.large -f value -c name -c vcpus -c ram -c disk
+20
+general.large
+8192
+4
+
+$ openstack image show ubuntu-24.04 -f value -c name -c status -c size
+ubuntu-24.04
+625476096
+active
+
+$ openstack loadbalancer list -f table
++--------------------------------------+----------------+----------------------------------+-------------+---------------------+------------------+----------+
+| id                                   | name           | project_id                       | vip_address | provisioning_status | operating_status | provider |
++--------------------------------------+----------------+----------------------------------+-------------+---------------------+------------------+----------+
+| 57c2b14a-b746-4f34-8719-d0627e409609 | poi-atividades | 2c593796f29e4b829b1b523775e2fa26 | 10.5.8.242  | ACTIVE              | ONLINE           | amphora  |
+| e2cb4780-8626-4e39-96e4-b43fd1aaa498 | poi-atividades | 2c593796f29e4b829b1b523775e2fa26 | 10.5.9.107  | ERROR               | ERROR            | amphora  |
++--------------------------------------+----------------+----------------------------------+-------------+---------------------+------------------+----------+
+
+# O nome poi-atividades nao e unico. O script 50 seleciona a instancia ACTIVE
+# (57c2b14a-b746-4f34-8719-d0627e409609) e a referencia por ID.
+
+# Portas ja ocupadas no balanceador ACTIVE, entre 8200 e 8299:
+#   8201 app-cpu-bound-grupo-4
+#   8203 app-io-bound-grupo-4
+#   8204 app-memory-bound-grupo-4
+#   8206 listener-io-grupo-6
+#   8211 listener-memory-grupo11
+#   8212 (sem nome)
+#   8220 (sem nome)
+#   8222 app-memory-grupo-22
+#   8224 grupo-24-galeria
+#   8225 app-io-grupo25
+#   8226 app-io-grupo26
+
+# Conclusao: 8200 e 8202 estao livres, 8201 esta ocupada. A A5 usa 8600 a 8602,
+# e o SSH usa 2223, livre. As portas 8100 a 8102 e 2222 da A4 seguem ativas.
