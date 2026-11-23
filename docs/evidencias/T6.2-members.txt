@@ -1,0 +1,17 @@
+# T6.2 - Pools, monitores e membros da Atividade 5
+# data UTC: 2026-11-23
+
+Monitores HTTP: atraso 5 s, timeout 4 s, 3 tentativas, GET /health, codigo 200.
+Monitores TCP: atraso 5 s, timeout 4 s, 3 tentativas (listener SSH).
+
+$ openstack loadbalancer member list <pool> -c name -c address -c protocol_port -c provisioning_status -c operating_status
+pool-app-cpu-atividade5    vm-atividade5-k8s 10.5.11.226 8000 ACTIVE ONLINE
+pool-app-memory-atividade5 vm-atividade5-k8s 10.5.11.226 8001 ACTIVE ONLINE
+pool-app-io-atividade5     vm-atividade5-k8s 10.5.11.226 8002 ACTIVE ONLINE
+pool-ssh-atividade5        vm-atividade5-k8s 10.5.11.226 22   ACTIVE ONLINE
+
+IDs:
+  pool app-cpu     c336436d-7bea-473f-a92d-fd57024d02f2
+  pool app-memory  8333ab10-bed4-44f9-8324-a7f6e37b7c18
+  pool app-io      794e6d3f-0803-4447-ac0d-b9ba852b5f22
+  pool ssh         6677db84-59b0-4908-8327-e728bf72fef4

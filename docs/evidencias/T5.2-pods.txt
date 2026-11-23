@@ -1,0 +1,28 @@
+# T5.2 - Deployments, pods, servicos e endpoints
+# host: vm-atividade5-k8s
+# data UTC: 2026-11-23
+
+$ kubectl -n workloads get deployments,pods,services -o wide
+NAME                              READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS   IMAGES                              SELECTOR
+deployment.apps/cpu-workload      2/2     2            2           20s   app          danielandersonss/poi-cpu:1.1.0      app.kubernetes.io/name=cpu-workload
+deployment.apps/io-workload       2/2     2            2           20s   app          danielandersonss/poi-io:1.1.0       app.kubernetes.io/name=io-workload
+deployment.apps/memory-workload   2/2     2            2           20s   app          danielandersonss/poi-memory:1.1.0   app.kubernetes.io/name=memory-workload
+
+NAME                                   READY   STATUS    RESTARTS   AGE   IP           NODE       NOMINATED NODE   READINESS GATES
+pod/cpu-workload-6dc4cd7db-5p86z       1/1     Running   0          20s   10.244.0.4   minikube   <none>           <none>
+pod/cpu-workload-6dc4cd7db-7r4q6       1/1     Running   0          20s   10.244.0.5   minikube   <none>           <none>
+pod/io-workload-86b5954796-h7vww       1/1     Running   0          20s   10.244.0.7   minikube   <none>           <none>
+pod/io-workload-86b5954796-qmbql       1/1     Running   0          20s   10.244.0.6   minikube   <none>           <none>
+pod/memory-workload-5c5457c6f6-2hjsz   1/1     Running   0          20s   10.244.0.8   minikube   <none>           <none>
+pod/memory-workload-5c5457c6f6-bq9nd   1/1     Running   0          20s   10.244.0.9   minikube   <none>           <none>
+
+NAME                      TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE   SELECTOR
+service/cpu-workload      NodePort   10.100.190.228   <none>        8000:30080/TCP   21s   app.kubernetes.io/name=cpu-workload
+service/io-workload       NodePort   10.96.45.20      <none>        8000:30082/TCP   21s   app.kubernetes.io/name=io-workload
+service/memory-workload   NodePort   10.110.64.145   <none>        8000:30081/TCP   21s   app.kubernetes.io/name=memory-workload
+
+$ kubectl -n workloads get endpoints
+NAME              ENDPOINTS                         AGE
+cpu-workload      10.244.0.4:8000,10.244.0.5:8000   22s
+io-workload       10.244.0.6:8000,10.244.0.7:8000   22s
+memory-workload   10.244.0.8:8000,10.244.0.9:8000   21s

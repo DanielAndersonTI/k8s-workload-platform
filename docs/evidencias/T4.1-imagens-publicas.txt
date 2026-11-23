@@ -1,0 +1,25 @@
+# T4.1 - Imagens publicas no Docker Hub
+# ambiente: VDI osboxes, sem credenciais (DOCKER_CONFIG temporario)
+# data UTC: 2026-11-23
+
+$ export DOCKER_CONFIG=$(mktemp -d)
+$ for p in cpu memory io; do docker manifest inspect danielandersonss/poi-$p:1.1.0; done
+# saida: manifesto schemaVersion 2 aceito para as tres imagens
+# (o comando nao usa login; a leitura anonima prova que o repositorio e publico)
+
+$ curl -sf https://hub.docker.com/v2/repositories/danielandersonss/poi-<perfil>/tags/1.1.0
+poi-cpu:1.1.0     2026-11-23T15:03:42.182625Z   44294801 bytes
+poi-memory:1.1.0  2026-11-23T15:03:50.773418Z   44294506 bytes
+poi-io:1.1.0      2026-11-23T15:03:58.954537Z   44294471 bytes
+
+# A tag 1.0.0 continua publica e com o conteudo original da Atividade 4:
+poi-cpu:1.0.0     2026-11-23T15:04:50.86033Z
+poi-memory:1.0.0  2026-11-23T15:04:53.555892Z
+poi-io:1.0.0      2026-11-23T15:04:56.239311Z
+
+$ docker manifest inspect danielandersonss/poi-<perfil>:1.0.0   # digest do config
+poi-cpu:1.0.0     sha256:443fa9abcd544daace935ab2d60b39eab8ff58d01265805e18f3367bd38cfa3e
+poi-memory:1.0.0  sha256:f50ee31660729dc510db00e9833fef790899cfc57b5a554834d2bc1df2b4216f
+poi-io:1.0.0      sha256:f019ca3425f68372a1f61759372f37653eaeb9b4b137044f6010cb80400daf37
+# Esses tres valores sao os identificadores das imagens construidas para a A4
+# em 10/11/2026, o que confirma a restauracao da tag 1.0.0.

@@ -3,8 +3,9 @@
 # Build and publish the three A5 images as 1.1.0.
 #
 # Run on a host with Docker and a Docker Hub token. The token is read from the
-# environment or from docker.env, never printed. The tag is fixed at 1.1.0 so
-# the A4 images tagged 1.0.0 are not overwritten.
+# environment or from docker.env, never printed. The tag defaults to 1.1.0 and
+# is controlled by A5_IMAGE_TAG, a name that cannot collide with the IMAGE_TAG
+# of the previous activity.
 #
 set -euo pipefail
 
@@ -21,7 +22,7 @@ fi
 : "${DOCKERHUB_USER:?set DOCKERHUB_USER in the environment or in docker.env}"
 : "${DOCKERHUB_TOKEN:?set DOCKERHUB_TOKEN in the environment or in docker.env}"
 
-TAG="${IMAGE_TAG:-1.1.0}"
+TAG="${A5_IMAGE_TAG:-1.1.0}"
 PLATFORM="${PLATFORM:-linux/amd64}"
 
 command -v docker >/dev/null 2>&1 || {

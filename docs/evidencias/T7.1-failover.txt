@@ -1,0 +1,29 @@
+# T7.1 - Falha controlada de um pod do cpu-workload
+# origem das requisicoes: VDI osboxes -> VIP 150.165.85.77:8600/health
+# host da exclusao: vm-atividade5-k8s
+# data UTC: 2026-11-23
+
+== pods antes
+cpu-workload-6dc4cd7db-5p86z   1/1 Running 0 20m 10.244.0.4
+cpu-workload-6dc4cd7db-7r4q6   1/1 Running 0 20m 10.244.0.5
+
+pod alvo: cpu-workload-6dc4cd7db-5p86z
+
+# Um laco externo fez uma requisicao a cada 0,2 s durante 70 s. A exclusao
+# ocorreu 3 s depois do inicio do laco.
+$ kubectl -n workloads delete pod cpu-workload-6dc4cd7db-5p86z
+pod "cpu-workload-6dc4cd7db-5p86z" deleted from workloads namespace
+deployment "cpu-workload" successfully rolled out
+rollout concluido em 1s
+
+== pods depois
+cpu-workload-6dc4cd7db-7r4q6   1/1 Running 0 21m 10.244.0.5
+cpu-workload-6dc4cd7db-s4b9c   1/1 Running 0 68s 10.244.0.10
+
+== requisicoes testadas e falhas (formato: total falhas)
+232 0
+== respostas diferentes de 200
+(nenhuma)
+
+# O Deployment repôs a réplica e o Service manteve a segunda réplica atendendo.
+# Nenhuma das 232 requisicoes externas deixou de receber 200.

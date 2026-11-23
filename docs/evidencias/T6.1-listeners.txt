@@ -1,0 +1,22 @@
+# T6.1 - Listeners da Atividade 5 no balanceador compartilhado
+# balanceador: poi-atividades, instancia ACTIVE 57c2b14a-b746-4f34-8719-d0627e409609
+# data UTC: 2026-11-23
+
+$ openstack loadbalancer listener list -c name -c protocol_port
+ssh-daniel-ranya      2222   (A4, preservado)
+app-cpu-daniel-ranya  8100   (A4, preservado)
+app-memory-daniel-ranya 8101 (A4, preservado)
+app-io-daniel-ranya   8102   (A4, preservado)
+ssh-atividade5        2223
+app-cpu-atividade5    8600
+app-memory-atividade5 8601
+app-io-atividade5     8602
+
+$ openstack loadbalancer listener show <listener> -c name -c protocol -c protocol_port -c provisioning_status -c operating_status
+app-cpu-atividade5    HTTP 8600 ACTIVE ONLINE
+app-memory-atividade5 HTTP 8601 ACTIVE ONLINE
+app-io-atividade5     HTTP 8602 ACTIVE ONLINE
+ssh-atividade5        TCP  2223 ACTIVE ONLINE
+
+# Os quatro listeners foram criados no balanceador ACTIVE, referenciado por ID.
+# Nenhum listener da A4 foi alterado.

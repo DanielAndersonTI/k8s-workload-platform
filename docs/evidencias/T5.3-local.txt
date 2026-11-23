@@ -1,0 +1,24 @@
+# T5.3 - Teste local das tres aplicacoes
+# host: vm-atividade5-k8s, portas publicadas pelo Minikube
+# data UTC: 2026-11-23
+
+$ for p in 8000 8001 8002; do curl -fsS http://127.0.0.1:$p/health; curl -fsS --max-time 20 http://127.0.0.1:$p/work; curl -fsS http://127.0.0.1:$p/metrics; done
+
+== porta 8000 (cpu)
+health:  {"status": "ok", "profile": "cpu"}
+work:    {"profile": "cpu", "duration_seconds": 0.064912, "result": {"sha256": "67fd7594c85ac40ff41f1fbe848974712a15849ca433cd6874ba614b47ebe1b6", "iterations": 10}}
+metrics: {"profile": "cpu", "max_concurrency": 32, "uptime_seconds": 34.426, "requests": 0, "ok": 0, "rejected_503": 0, "failed": 0, "completed": 0, "inflight": 0, "max_inflight": 0, "wait_seconds_total": 0.0, "work_seconds_total": 0.0, "mean_wait_ms": 0.0, "mean_work_ms": 0.0, "max_work_ms": 0.0}
+
+== porta 8001 (memory)
+health:  {"status": "ok", "profile": "memory"}
+work:    {"profile": "memory", "duration_seconds": 0.053545, "result": {"allocated_mib": 32, "checksum": 1016720}}
+metrics: {"profile": "memory", "max_concurrency": 4, "uptime_seconds": 27.971, "requests": 0, "ok": 0, "rejected_503": 0, "failed": 0, "completed": 0, "inflight": 0, "max_inflight": 0, "wait_seconds_total": 0.0, "work_seconds_total": 0.0, "mean_wait_ms": 0.0, "mean_work_ms": 0.0, "max_work_ms": 0.0}
+
+== porta 8002 (io)
+health:  {"status": "ok", "profile": "io"}
+work:    {"profile": "io", "duration_seconds": 0.008418, "result": {"bytes_read": 1048576, "bytes_written": 1048576}}
+metrics: {"profile": "io", "max_concurrency": 16, "uptime_seconds": 26.172, "requests": 0, "ok": 0, "rejected_503": 0, "failed": 0, "completed": 0, "inflight": 0, "max_inflight": 0, "wait_seconds_total": 0.0, "work_seconds_total": 0.0, "mean_wait_ms": 0.0, "mean_work_ms": 0.0, "max_work_ms": 0.0}
+
+# `requests` e `ok` ficam em zero porque as tres chamadas atravessam o Service
+# com duas replicas e podem ser atendidas por pods diferentes. O contador e
+# por processo, nao agregado do Deployment.

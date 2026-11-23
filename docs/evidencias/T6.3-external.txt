@@ -1,0 +1,23 @@
+# T6.3 - URLs externas da Atividade 5 e da Atividade 4
+# origem: VDI osboxes, destino VIP 150.165.85.77
+# data UTC: 2026-11-23
+
+== 8600 (cpu)
+health  {"status": "ok", "profile": "cpu"} HTTP 200 0.037327s
+work    {"profile": "cpu", "duration_seconds": 0.066989, "result": {"sha256": "67fd7594c85ac40ff41f1fbe848974712a15849ca433cd6874ba614b47ebe1b6", "iterations": 10}} HTTP 200 0.137879s
+metrics HTTP 200 0.058400s
+
+== 8601 (memory)
+health  {"status": "ok", "profile": "memory"} HTTP 200 0.039587s
+work    {"profile": "memory", "duration_seconds": 0.063709, "result": {"allocated_mib": 32, "checksum": 1016720}} HTTP 200 0.299535s
+metrics HTTP 200 0.346161s
+
+== 8602 (io)
+health  {"status": "ok", "profile": "io"} HTTP 200 0.321892s
+work    {"profile": "io", "duration_seconds": 0.011552, "result": {"bytes_read": 1048576, "bytes_written": 1048576}} HTTP 200 0.135240s
+metrics HTTP 200 0.056169s
+
+== Atividade 4, portas 8100 a 8102
+8100 {"status": "ok", "profile": "cpu"} HTTP 200
+8101 {"status": "ok", "profile": "memory"} HTTP 200
+8102 {"status": "ok", "profile": "io"} HTTP 200

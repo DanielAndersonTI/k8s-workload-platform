@@ -94,53 +94,59 @@ acionada.
 
 | ID | Tarefa | Estado |
 | --- | --- | --- |
-| T4.1 | Confirmar que as imagens necessárias são públicas no Docker Hub | [ ] |
-| T4.2 | Executar `scripts/05-images.sh` e publicar as três imagens como `1.1.0` | [ ] |
+| T4.1 | Confirmar que as imagens necessárias são públicas no Docker Hub | [x] |
+| T4.2 | Executar `scripts/05-images.sh` e publicar as três imagens como `1.1.0` | [x] |
 | T4.3 | Atualizar manifestos, README e relatório com a tag `1.1.0` | [x] |
-| T4.4 | Testar o `docker pull` das três imagens na VM | [ ] |
+| T4.4 | Testar o `docker pull` das três imagens na VM | [x] |
+
+A primeira execução usou `IMAGE_TAG=1.0.0`, herdada do `session.env` da A3, e
+republicou as imagens da A4. O script passou a usar `A5_IMAGE_TAG` e a tag
+`1.0.0` foi restaurada a partir das imagens originais, com verificação de
+digest em `T4.1-imagens-publicas.txt`.
 
 ## Fase 5 — Deploy das aplicações
 
 | ID | Tarefa | Estado |
 | --- | --- | --- |
-| T5.1 | Aplicar os manifestos com `kubectl apply -k k8s/` | [ ] |
-| T5.2 | Acompanhar os três rollouts e conferir pods, serviços e endpoints | [ ] |
-| T5.3 | Testar `/health`, `/work` e `/metrics` em 8000, 8001 e 8002 | [ ] |
-| T5.4 | Registrar as evidências `T5.1-apply`, `T5.2-pods` e `T5.3-local` | [ ] |
+| T5.1 | Aplicar os manifestos com `kubectl apply -k k8s/` | [x] |
+| T5.2 | Acompanhar os três rollouts e conferir pods, serviços e endpoints | [x] |
+| T5.3 | Testar `/health`, `/work` e `/metrics` em 8000, 8001 e 8002 | [x] |
+| T5.4 | Registrar as evidências `T5.1-apply`, `T5.2-pods` e `T5.3-local` | [x] |
 
 ## Fase 6 — Exposição pelo balanceador
 
 | ID | Tarefa | Estado |
 | --- | --- | --- |
-| T6.1 | Criar os três listeners `app-*-atividade5` nas portas 8600 a 8602 | [ ] |
-| T6.2 | Criar os pools, monitores e membros das três aplicações | [ ] |
+| T6.1 | Criar os três listeners `app-*-atividade5` nas portas 8600 a 8602 | [x] |
+| T6.2 | Criar os pools, monitores e membros das três aplicações | [x] |
 | T6.3 | Criar o listener SSH `ssh-atividade5` na porta 2223 | [x] |
-| T6.4 | Aguardar listeners, pools e membros ficarem `ONLINE` | [ ] |
-| T6.5 | Testar as três URLs externas nas portas 8600, 8601 e 8602 | [ ] |
-| T6.6 | Confirmar que as URLs da A4 em 8100 a 8102 continuam respondendo | [ ] |
-| T6.7 | Registrar as evidências `T6.1-listeners`, `T6.2-members` e `T6.3-external` | [ ] |
+| T6.4 | Aguardar listeners, pools e membros ficarem `ONLINE` | [x] |
+| T6.5 | Testar as três URLs externas nas portas 8600, 8601 e 8602 | [x] |
+| T6.6 | Confirmar que as URLs da A4 em 8100 a 8102 continuam respondendo | [x] |
+| T6.7 | Registrar as evidências `T6.1-listeners`, `T6.2-members` e `T6.3-external` | [x] |
 
 ## Fase 7 — Verificação e falha controlada
 
 | ID | Tarefa | Estado |
 | --- | --- | --- |
-| T7.1 | Excluir um pod e confirmar a recriação pelo `Deployment` | [ ] |
-| T7.2 | Confirmar que o serviço continuou disponível durante a falha | [ ] |
-| T7.3 | Conferir o consumo com `kubectl top` | [ ] |
-| T7.4 | Registrar as evidências `T7.1-failover` e `T7.2-top` | [ ] |
-| T7.5 | Testar a persistência após `minikube stop` e `minikube start` | [ ] |
+| T7.1 | Excluir um pod e confirmar a recriação pelo `Deployment` | [x] |
+| T7.2 | Confirmar que o serviço continuou disponível durante a falha | [x] |
+| T7.3 | Conferir o consumo com `kubectl top` | [x] |
+| T7.4 | Registrar as evidências `T7.1-failover` e `T7.2-top` | [x] |
+| T7.5 | Testar a persistência após `minikube stop` e `minikube start` | [x] |
 
-T7.5 é opcional. Se for executada, precisa de tempo de espera e de uma nova
-verificação das URLs externas.
+T7.5 foi executada. Os seis pods voltaram a `Running`, as portas 8000 a 8002
+continuaram publicadas e as três aplicações responderam em seguida; evidência em
+`T7.3-restart.txt`.
 
 ## Fase 8 — Conferência do ambiente anterior
 
 | ID | Tarefa | Estado |
 | --- | --- | --- |
-| T8.1 | Confirmar as três URLs externas da A5 | [ ] |
-| T8.2 | Confirmar que as três URLs da A4 continuam respondendo | [ ] |
-| T8.3 | Confirmar que nenhum recurso do professor foi alterado | [ ] |
-| T8.4 | Registrar a evidência `T8.1-coexistencia` | [ ] |
+| T8.1 | Confirmar as três URLs externas da A5 | [x] |
+| T8.2 | Confirmar que as três URLs da A4 continuam respondendo | [x] |
+| T8.3 | Confirmar que nenhum recurso do professor foi alterado | [x] |
+| T8.4 | Registrar a evidência `T8.1-coexistencia` | [x] |
 
 A A4 não é removida. A conferência prova que os dois ambientes coexistem.
 

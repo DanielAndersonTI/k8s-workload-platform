@@ -1,0 +1,15 @@
+# T4.4 - Pull das imagens 1.1.0 na VM da Atividade 5
+# host: vm-atividade5-k8s, acesso por ssh -p 2223
+# data UTC: 2026-11-23
+
+$ for p in cpu memory io; do docker pull danielandersonss/poi-$p:1.1.0 | tail -n1; done
+docker.io/danielandersonss/poi-cpu:1.1.0
+docker.io/danielandersonss/poi-memory:1.1.0
+docker.io/danielandersonss/poi-io:1.1.0
+
+$ docker images --format '{{.Repository}}:{{.Tag}} {{.ID}} {{.CreatedSince}}' | grep 1.1.0 | sort
+danielandersonss/poi-cpu:1.1.0 e3d6931e83aa 9 minutes ago
+danielandersonss/poi-io:1.1.0 875c7f03f4ac 9 minutes ago
+danielandersonss/poi-memory:1.1.0 dc65bb896626 9 minutes ago
+
+# Os IDs coincidem com os digests publicados em T4.2.

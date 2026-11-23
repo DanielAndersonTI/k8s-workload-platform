@@ -1,0 +1,25 @@
+# T5.1 - Aplicacao dos manifestos
+# host: vm-atividade5-k8s, repositorio em /home/ubuntu/atividade5
+# data UTC: 2026-11-23
+
+$ cd ~/atividade5 && bash scripts/30-deploy.sh
+namespace/workloads created
+service/cpu-workload created
+service/io-workload created
+service/memory-workload created
+deployment.apps/cpu-workload created
+deployment.apps/io-workload created
+deployment.apps/memory-workload created
+Waiting for deployment "cpu-workload" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "cpu-workload" rollout to finish: 1 of 2 updated replicas are available...
+deployment "cpu-workload" successfully rolled out
+Waiting for deployment "memory-workload" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "memory-workload" rollout to finish: 1 of 2 updated replicas are available...
+deployment "memory-workload" successfully rolled out
+Waiting for deployment "io-workload" rollout to finish: 1 of 2 updated replicas are available...
+deployment "io-workload" successfully rolled out
+
+# O aviso abaixo vem do kubectl, nao do manifesto:
+Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
+# O script usa `kubectl get endpoints`; a consulta funciona, mas sera trocada por
+# EndpointSlice na proxima revisao.

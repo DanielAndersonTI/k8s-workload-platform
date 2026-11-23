@@ -1,0 +1,33 @@
+# T8.1 - Coexistencia entre a Atividade 5 e a Atividade 4
+# origem: VDI osboxes, VIP 150.165.85.77
+# data UTC: 2026-11-23
+
+== URLs externas da Atividade 5
+8600 {"status": "ok", "profile": "cpu"} HTTP 200 0.025805s
+8601 {"status": "ok", "profile": "memory"} HTTP 200 0.022902s
+8602 {"status": "ok", "profile": "io"} HTTP 200 0.030400s
+
+== URLs externas da Atividade 4
+8100 {"status": "ok", "profile": "cpu"} HTTP 200 0.022087s
+8101 {"status": "ok", "profile": "memory"} HTTP 200 0.023456s
+8102 {"status": "ok", "profile": "io"} HTTP 200 0.021773s
+
+$ openstack loadbalancer list -c id -c name -c provisioning_status -c operating_status
+57c2b14a-b746-4f34-8719-d0627e409609 poi-atividades ACTIVE ONLINE
+e2cb4780-8626-4e39-96e4-b43fd1aaa498 poi-atividades ERROR  ERROR
+
+# A instancia ERROR ja existia antes desta atividade. Todas as criacoes foram
+# feitas na instancia ACTIVE, sempre referenciada por ID.
+
+$ openstack server list
+vm-atividade5-k8s   ACTIVE provider=10.5.11.226
+vm-daniel-ranya     ACTIVE provider=10.5.9.15    (Atividade 4)
+(... outras VMs de outros grupos, inalteradas)
+
+# Listeners da A4 presentes e funcionais: ssh-daniel-ranya 2222,
+# app-cpu-daniel-ranya 8100, app-memory-daniel-ranya 8101,
+# app-io-daniel-ranya 8102.
+# Listeners criados nesta atividade: ssh-atividade5 2223,
+# app-cpu-atividade5 8600, app-memory-atividade5 8601,
+# app-io-atividade5 8602.
+# Nenhum recurso de outro grupo foi criado, alterado ou removido.

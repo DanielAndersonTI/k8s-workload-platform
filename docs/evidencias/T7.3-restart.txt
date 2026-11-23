@@ -1,0 +1,44 @@
+# T7.3 - Persistencia apos minikube stop e minikube start
+# host: vm-atividade5-k8s
+# data UTC: 2026-11-23
+
+$ minikube stop
+* Stopping node "minikube"  ...
+* Powering off "minikube" via SSH ...
+* 1 node stopped.
+
+$ minikube start --driver=docker --cpus=3 --memory=6144 --ports=8000:30080,8001:30081,8002:30082 --kubernetes-version=stable
+* Using the docker driver based on existing profile
+* Starting "minikube" primary control-plane node in "minikube" cluster
+* Preparing Kubernetes v1.37.0 on containerd 2.3.4 ...
+* Verifying Kubernetes components...
+  - Using image registry.k8s.io/metrics-server/metrics-server:v0.9.0
+  - Using image gcr.io/k8s-minikube/storage-provisioner:v5
+* Enabled addons: storage-provisioner, default-storageclass, metrics-server
+* Done! kubectl is now configured to use "minikube" cluster
+NAME       STATUS   ROLES           AGE   VERSION
+minikube   Ready    control-plane   45m   v1.37.0
+
+# Imediatamente apos o start os pods aparecem como Unknown; a sincronizacao do
+# kubelet leva alguns segundos.
+$ kubectl -n workloads get pods   # apos aguardar
+NAME                               READY   STATUS    RESTARTS      AGE
+cpu-workload-6dc4cd7db-7r4q6       1/1     Running   1 (23s ago)   23m
+cpu-workload-6dc4cd7db-s4b9c       1/1     Running   1 (23s ago)   2m57s
+io-workload-86b5954796-h7vww       1/1     Running   1 (23s ago)   23m
+io-workload-86b5954796-qmbql       1/1     Running   1 (23s ago)   23m
+memory-workload-5c5457c6f6-2hjsz   1/1     Running   1 (23s ago)   23m
+memory-workload-5c5457c6f6-bq9nd   1/1     Running   1 (23s ago)   23m
+
+$ docker port minikube | grep 3008
+30080/tcp -> 0.0.0.0:8000
+30081/tcp -> 0.0.0.0:8001
+30082/tcp -> 0.0.0.0:8002
+
+$ curl http://127.0.0.1:<porta>/health
+8000 {"status": "ok", "profile": "cpu"}
+8001 {"status": "ok", "profile": "memory"}
+8002 {"status": "ok", "profile": "io"}
+
+# Os seis pods foram recriados a partir do estado do cluster; os enderecos IP
+# internos mudaram, o que e normal. As portas publicadas continuaram as mesmas.

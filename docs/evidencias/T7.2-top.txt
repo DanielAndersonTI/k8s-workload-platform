@@ -1,0 +1,26 @@
+# T7.2 - Consumo do cluster apos a falha controlada
+# host: vm-atividade5-k8s
+# data UTC: 2026-11-23
+
+$ kubectl top nodes
+NAME       CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)
+minikube   411m         10%      700Mi           8%
+
+$ kubectl top pods -n workloads
+NAME                               CPU(cores)   MEMORY(bytes)
+cpu-workload-6dc4cd7db-7r4q6       3m           15Mi
+cpu-workload-6dc4cd7db-s4b9c       37m          13Mi
+io-workload-86b5954796-h7vww       1m           13Mi
+io-workload-86b5954796-qmbql       1m           13Mi
+memory-workload-5c5457c6f6-2hjsz   1m           13Mi
+memory-workload-5c5457c6f6-bq9nd   1m           13Mi
+
+$ kubectl -n workloads get deployments
+NAME              READY   UP-TO-DATE   AVAILABLE   AGE
+cpu-workload      2/2     2            2           22m
+io-workload       2/2     2            2           22m
+memory-workload   2/2     2            2           22m
+
+# O pod recem-criado aparece com 37m de CPU por causa da inicializacao e da
+# primeira requisicao; os demais ficam em 1m a 3m. A memoria por pod estabiliza
+# entre 13Mi e 15Mi.

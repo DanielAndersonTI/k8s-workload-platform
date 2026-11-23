@@ -1,0 +1,25 @@
+# T4.2 - Construcao e publicacao das imagens 1.1.0
+# ambiente: VDI osboxes, Docker 24.0.5, build para linux/amd64
+# data UTC: 2026-11-23
+
+$ cd ~/atividade5
+$ set -a; . ~/.atividade3/session.env; set +a
+$ export A5_IMAGE_TAG=1.1.0
+$ bash scripts/05-images.sh
+# trecho do log, sem credenciais:
+#15 naming to docker.io/danielandersonss/poi-cpu:1.1.0 0.0s done
+1.1.0: digest: sha256:e3d6931e83aa227b6095bce3b8b07bdd345f38be750261060f85a9c3d6ff1eb5 size: 2198
+#15 naming to docker.io/danielandersonss/poi-memory:1.1.0 0.1s done
+1.1.0: digest: sha256:dc65bb8966260afb6c086f62d18d70fff16d24d84d887f64652fe0e8e169e02b size: 2198
+#15 naming to docker.io/danielandersonss/poi-io:1.1.0 0.0s done
+1.1.0: digest: sha256:875c7f03f4ac6c7a218e05403e348ab63bd7e578724ef1ab6b46d3421a871969 size: 2198
+
+# O script usa a variavel A5_IMAGE_TAG. O IMAGE_TAG do session.env pertence a
+# Atividade 4 e nao deve ser reutilizado.
+#
+# A primeira execucao usou IMAGE_TAG=1.0.0 por engano e republicou as imagens
+# antigas. A tag 1.0.0 foi restaurada a partir das imagens originais da VM da
+# A4, com os digests abaixo:
+#   poi-cpu:1.0.0    sha256:7279dc1e69d44e4ae1d8a257831b2ac74b8f4f0661d1e4b142d547f0f3572097
+#   poi-memory:1.0.0 sha256:859c282e77a398228c9f1d4e2f9a5fdb3e8656b0ba5b78891359fcf4722a427e
+#   poi-io:1.0.0     sha256:44324001836800a8fa7b0fb26a3cb8c73927f97584153256491d222007a199d6
