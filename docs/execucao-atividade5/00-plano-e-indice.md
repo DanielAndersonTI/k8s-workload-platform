@@ -84,11 +84,16 @@ entrega usa o link do arquivo no repositório e o PDF anexado no formulário.
 | T3.4 | Confirmar nó `Ready`, versões e portas publicadas | [x] |
 | T3.5 | Registrar as evidências `T3.1-versions` e `T3.2-node` | [x] |
 | T3.6 | Acionar o plano alternativo se `--ports` não publicar as portas | [x] |
+| T3.7 | Aplicar e conferir a cota de CPU do container do Minikube | [x] |
 
 O plano alternativo é usar `kubectl port-forward` com units `systemd` ou
 reconfigurar o driver. A decisão só é tomada se a verificação de portas falhar.
 As portas 8000 a 8002 foram publicadas na primeira tentativa, então T3.6 não foi
 acionada.
+
+O `--cpus=3` não criou cota de CPU no minikube v1.39.0 com o driver Docker. O
+`20-cluster.sh` passou a aplicar `docker update --cpus=3` e a falhar se
+`CpuQuota` continuar zero; a conferência está em `T3.7-capacidade.txt`.
 
 ## Fase 4 — Imagens
 
@@ -112,6 +117,13 @@ digest em `T4.1-imagens-publicas.txt`.
 | T5.2 | Acompanhar os três rollouts e conferir pods, serviços e endpoints | [x] |
 | T5.3 | Testar `/health`, `/work` e `/metrics` em 8000, 8001 e 8002 | [x] |
 | T5.4 | Registrar as evidências `T5.1-apply`, `T5.2-pods` e `T5.3-local` | [x] |
+| T5.5 | Coletar logs, eventos e estado das sondas | [x] |
+| T5.6 | Aplicar PSA `restricted`, PDB e `LimitRange` | [x] |
+
+O namespace passou a exigir o perfil `restricted` do Pod Security Admission. Um
+pod sem contexto de segurança foi rejeitado, e um pod compatível sem `resources`
+recebeu os valores padrão do `LimitRange`. As evidências estão em
+`T5.5-logs.txt` e `T5.6-security.txt`.
 
 ## Fase 6 — Exposição pelo balanceador
 
@@ -124,6 +136,11 @@ digest em `T4.1-imagens-publicas.txt`.
 | T6.5 | Testar as três URLs externas nas portas 8600, 8601 e 8602 | [x] |
 | T6.6 | Confirmar que as URLs da A4 em 8100 a 8102 continuam respondendo | [x] |
 | T6.7 | Registrar as evidências `T6.1-listeners`, `T6.2-members` e `T6.3-external` | [x] |
+| T6.8 | Medir a latência externa com 30 amostras por porta | [x] |
+
+A medição cobre as seis URLs externas, três da A5 e três da A4. Todas as 180
+requisições retornaram 200; a média ficou entre 19,8 ms e 25,8 ms. Evidência em
+`T6.8-latencia.txt`.
 
 ## Fase 7 — Verificação e falha controlada
 
@@ -134,10 +151,20 @@ digest em `T4.1-imagens-publicas.txt`.
 | T7.3 | Conferir o consumo com `kubectl top` | [x] |
 | T7.4 | Registrar as evidências `T7.1-failover` e `T7.2-top` | [x] |
 | T7.5 | Testar a persistência após `minikube stop` e `minikube start` | [x] |
+| T7.6 | Atualizar com imagem inválida e executar rollback | [x] |
+| T7.7 | Testar o monitor do balanceador com todas as réplicas fora | [x] |
 
 T7.5 foi executada. Os seis pods voltaram a `Running`, as portas 8000 a 8002
 continuaram publicadas e as três aplicações responderam em seguida; evidência em
-`T7.3-restart.txt`.
+`T7.3-restart.txt`. Os pods que já existiam passaram a mostrar `RESTARTS 1`,
+porque o kubelet reiniciou os containers; os pods de CPU foram recriados e
+ficaram com `RESTARTS 0`.
+
+T7.6 mostrou que uma imagem inválida não derruba o serviço: as réplicas antigas
+continuaram atendendo, o novo pod ficou em `ImagePullBackOff` e o `rollout undo`
+restaurou a imagem. T7.7 mostrou que o membro do pool só sai quando todas as
+réplicas estão fora, porque o monitor observa a porta do nó. As evidências estão
+em `T7.6-rollout.txt` e `T7.7-monitor.txt`.
 
 ## Fase 8 — Conferência do ambiente anterior
 
@@ -160,7 +187,7 @@ A A4 não é removida. A conferência prova que os dois ambientes coexistem.
 | T9.4 | Revisar datas, IDs e coerência entre os registros | [x] |
 
 Cada arquivo segue o formato da Atividade 4: tabela de identificação, objetivo,
-comandos, o que aconteceu, saída, decisões e problemas. Foram criados 66
+comandos, o que aconteceu, saída, decisões e problemas. Foram criados 72
 arquivos, das fases 0 a 10; o índice fica em `INDEX.md`.
 
 ## Fase 10 — Relatório final
@@ -177,19 +204,23 @@ arquivos, das fases 0 a 10; o índice fica em `INDEX.md`.
 
 O relatório final sintetiza decisões e resultados. Os comandos e as saídas
 brutas ficam no registro de execução. A exportação gerou
-`docs/relatorio-final.pdf`, com 5 páginas. Restam no relatório apenas os campos
-de identificação do grupo e de matrícula.
+`docs/relatorio-final.pdf`, com 8 páginas. Restam no relatório apenas a
+matrícula de Ranya e os dois e-mails, marcados com `[VERIFICAR]`.
 
 ## Fase 11 — Entrega e apresentação
 
 | ID | Tarefa | Estado |
 | --- | --- | --- |
-| T11.1 | Revisar o README em inglês contra o estado real do deploy | [ ] |
+| T11.1 | Revisar o README em inglês contra o estado real do deploy | [x] |
 | T11.2 | Fazer o commit e o push finais | [ ] |
-| T11.3 | Preencher os 19 campos do formulário | [ ] |
-| T11.4 | Preparar os slides da apresentação | [ ] |
+| T11.3 | Preencher os 20 campos do formulário | [x] |
+| T11.4 | Preparar os slides da apresentação | [x] |
 | T11.5 | Ensaiar a demonstração das três URLs | [ ] |
 | T11.6 | Apresentar em 26/11/2026 | [ ] |
+
+Os valores dos 20 campos estão em `docs/formulario.md`; o envio depende da
+revisão de Ranya. Os slides estão em `docs/apresentacao.md` e o roteiro da
+demonstração, em `docs/roteiro-demonstracao.md`.
 
 ## Os dois relatórios
 

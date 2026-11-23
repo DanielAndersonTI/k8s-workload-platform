@@ -58,11 +58,16 @@ Each service validates its own range and returns `400` outside it.
 | Service type | `NodePort` | Minikube does not provide a cloud controller; fixed node ports map cleanly to host ports |
 | Node ports | 30080 to 30082 | Inside the default range and stable across recreations |
 | Probes | startup, readiness, liveness on `/health` | Readiness controls traffic; liveness restarts a stuck process; startup protects slow boots |
-| Requests | 250m/128Mi to 250m/512Mi | Guarantees scheduling headroom on a 3 CPU node |
+| Requests | 250m/128Mi to 250m/512Mi | Guarantees scheduling headroom on the VM's 4 vCPUs |
 | Limits | 1 CPU/512Mi to 1 CPU/1536Mi | Caps the blast radius of a workload that allocates more than expected |
 | Security context | UID/GID 10001, no privilege escalation, read-only root, all capabilities dropped, `RuntimeDefault` seccomp | The application needs no privilege and no writable layer |
 | Writable path | `emptyDir` at `/tmp` | The I/O service writes scratch data; the root filesystem stays read-only |
 | Service account token | Not mounted | The workloads do not call the Kubernetes API |
+| Namespace policy | Pod Security Admission `restricted` | Rejects pods that do not meet the restricted profile |
+| Disruption budget | `minAvailable: 1` per Deployment | Keeps one replica serving during voluntary disruptions |
+| Default resources | `LimitRange` in the namespace | Gives a safe default to any container that omits requests or limits |
+
+The Docker driver applies `--memory` as a cgroup limit, but in minikube v1.39.0 it does not create a CPU quota from `--cpus`. `20-cluster.sh` applies the CPU limit with `docker update` and fails if the quota is absent. The kubelet still advertises the host capacity, so `kubectl top` percentages use 4 vCPUs and about 7.75 GiB, while the container is capped at 3 vCPUs and 6 GiB. The total requests, 1.2 vCPU and 1.5 GiB, fit both views. The total limits, 5 vCPU and 5 GiB, exceed the advertised CPU but stay below the 6 GiB memory cap.
 
 The manifests are managed as a Kustomize directory, so the whole set is applied
 with one command and can be extended per environment later.
@@ -71,12 +76,13 @@ with one command and can be extended per environment later.
 
 ```text
 apps/                   Application sources and the shared Dockerfile
-k8s/                    Namespace, Deployments, Services and Kustomization
+k8s/                    Namespace, Deployments, Services, PDB, LimitRange and Kustomization
 scripts/                Provisioning, bootstrap, deploy and verification
 docs/background.md      Service behavior and design context
 docs/evidencias/        Evidence policy and sanitized command output
 docs/execucao-atividade5/         Execution log, one record per task
-docs/relatorio-final.md           Final deployment report
+docs/relatorio-final.md           Final deployment report and its PDF
+docs/tools/md2pdf.py              Markdown to PDF converter for the report
 ```
 
 ## Prerequisites
@@ -114,12 +120,18 @@ git clone https://github.com/DanielAndersonTI/k8s-workload-platform.git
 cd k8s-workload-platform
 sudo bash scripts/10-bootstrap.sh
 newgrp docker
-cp docker.env.example docker.env
-# edit docker.env and set DOCKERHUB_USER and DOCKERHUB_TOKEN
-bash scripts/05-images.sh
 bash scripts/20-cluster.sh
 bash scripts/30-deploy.sh
 bash scripts/40-verify.sh
+```
+
+The sequence above uses the published `1.1.0` images. Rebuilding and pushing
+them is optional and needs a Docker Hub token:
+
+```bash
+cp docker.env.example docker.env
+# edit docker.env and set DOCKERHUB_USER and DOCKERHUB_TOKEN
+bash scripts/05-images.sh
 ```
 
 Back on the access VDI, create the A5 listeners. `SUBNET_ID` is the subnet of
@@ -130,10 +142,11 @@ export SUBNET_ID=17de9c72-e5dc-4da0-ae0a-013f7e42400e
 bash scripts/50-loadbalancer.sh
 ```
 
-`10-bootstrap.sh` installs Docker, `kubectl`, and `minikube`, and disables swap.
-`05-images.sh` builds each profile from `apps/Dockerfile` and pushes the `1.1.0`
-tags, leaving the `1.0.0` images from the previous activity untouched. The
-Docker Hub token is read from `docker.env`, which is never committed.
+`10-bootstrap.sh` installs pinned versions of Docker, `kubectl`, and `minikube`,
+and disables swap. `05-images.sh` is optional: it builds each profile from
+`apps/Dockerfile` and pushes the `1.1.0` tags, leaving the `1.0.0` images from
+the previous activity untouched. The Docker Hub token is read from `docker.env`,
+which is never committed.
 `20-cluster.sh` starts Minikube with the Docker driver and publishes host ports
 8000 to 8002. After changing group membership, open a new shell or run
 `newgrp docker` before starting the cluster. `50-loadbalancer.sh` creates the
@@ -158,3 +171,6 @@ environment, which is a separate validation.
 - [Service behavior and design context](docs/background.md)
 - [Evidence policy](docs/evidencias/README.md)
 - [Final deployment report](docs/relatorio-final.md)
+- [Form answers](docs/formulario.md)
+- [Presentation plan](docs/apresentacao.md)
+- [Demonstration script](docs/roteiro-demonstracao.md)

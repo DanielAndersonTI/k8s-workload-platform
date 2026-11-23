@@ -1,0 +1,51 @@
+# T3.7 - Limite de CPU do container do Minikube
+# host: vm-atividade5-k8s
+# data UTC: 2026-11-23
+
+# O driver Docker aplica --memory como limite de cgroup, mas o minikube v1.39.0
+# nao criou cota de CPU a partir de --cpus. O limite foi aplicado explicitamente
+# por docker update e o script 20-cluster.sh falha se a cota continuar ausente.
+
+$ docker inspect minikube --format "{{.HostConfig.CpuQuota}} {{.HostConfig.CpuPeriod}} {{.HostConfig.NanoCpus}} {{.HostConfig.Memory}}"
+0 0 0 6442450944
+
+$ docker exec minikube cat /sys/fs/cgroup/cpu.max
+max 100000
+
+$ docker update --cpus=3 minikube
+minikube
+
+$ docker inspect minikube --format "{{.HostConfig.CpuQuota}} {{.HostConfig.CpuPeriod}} {{.HostConfig.NanoCpus}} {{.HostConfig.Memory}}"
+0 0 3000000000 6442450944
+
+$ docker exec minikube cat /sys/fs/cgroup/cpu.max
+300000 100000
+
+$ docker exec minikube cat /sys/fs/cgroup/memory.max
+6442450944
+
+# Dentro do container, nproc continua lendo a topologia do host. A cota de CPU
+# nao altera /proc/cpuinfo.
+$ docker exec minikube nproc
+4
+
+# free mostra a memoria do host, nao o limite do cgroup. O limite de 6 GiB
+# aparece em memory.max.
+$ docker exec minikube free -m | head -2
+               total        used        free      shared  buff/cache   available
+Mem:            7941        1336         575          15        6350        6604
+
+# O kubelet anuncia a capacidade do host, nao a cota do cgroup.
+$ kubectl describe node minikube | grep -E "cpu:|memory:" | head -4
+  cpu:                4
+  memory:             8131812Ki
+  cpu:                4
+  memory:             8131812Ki
+
+$ kubectl top node
+NAME       CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)
+minikube   406m         10%      712Mi           8%
+
+# 406m corresponde a 10% de 4 vCPU. A soma dos requests dos seis pods e
+# 1,2 vCPU e 1,5 GiB; a soma dos limites e 5 vCPU e 5 GiB, acima dos 4 vCPU
+# anunciados e abaixo dos 6 GiB do cgroup.

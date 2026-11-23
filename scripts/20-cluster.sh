@@ -20,7 +20,7 @@ fi
 MINIKUBE_CPUS="${MINIKUBE_CPUS:-3}"
 MINIKUBE_MEMORY="${MINIKUBE_MEMORY:-6144}"
 MINIKUBE_PORTS="${MINIKUBE_PORTS:-8000:30080,8001:30081,8002:30082}"
-K8S_VERSION="${K8S_VERSION:-stable}"
+K8S_VERSION="${K8S_VERSION:-v1.37.0}"
 
 minikube start \
   --driver=docker \
@@ -28,6 +28,15 @@ minikube start \
   --memory="$MINIKUBE_MEMORY" \
   --ports="$MINIKUBE_PORTS" \
   --kubernetes-version="$K8S_VERSION"
+
+# minikube v1.39.0 with the Docker driver applies --memory as a cgroup limit
+# but does not create a CPU quota from --cpus. Apply the intended CPU limit
+# explicitly and fail if the quota is still absent.
+docker update --cpus="$MINIKUBE_CPUS" minikube >/dev/null
+if [ "$(docker inspect minikube --format '{{.HostConfig.CpuQuota}}')" = "0" ]; then
+  echo "CPU limit was not applied to the minikube container" >&2
+  exit 1
+fi
 
 minikube addons enable metrics-server
 

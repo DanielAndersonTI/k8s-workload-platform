@@ -36,14 +36,15 @@ if [ "$TARGET_USER" != "root" ]; then
   usermod -aG docker "$TARGET_USER"
 fi
 
-KUBECTL_VERSION="$(curl -fsSL https://dl.k8s.io/release/stable.txt)"
+KUBECTL_VERSION="${KUBECTL_VERSION:-v1.37.2}"
+MINIKUBE_VERSION="${MINIKUBE_VERSION:-v1.39.0}"
 curl -fsSLo /tmp/kubectl \
   "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${K8S_ARCH}/kubectl"
 install -m 0755 /tmp/kubectl /usr/local/bin/kubectl
 rm -f /tmp/kubectl
 
 curl -fsSLo /tmp/minikube \
-  "https://storage.googleapis.com/minikube/releases/latest/minikube-linux-${K8S_ARCH}"
+  "https://storage.googleapis.com/minikube/releases/download/${MINIKUBE_VERSION}/minikube-linux-${K8S_ARCH}"
 install -m 0755 /tmp/minikube /usr/local/bin/minikube
 rm -f /tmp/minikube
 

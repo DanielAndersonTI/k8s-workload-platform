@@ -1,0 +1,41 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: cpu-workload
+  namespace: workloads
+  labels:
+    app.kubernetes.io/name: cpu-workload
+    app.kubernetes.io/part-of: workload-platform
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cpu-workload
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: memory-workload
+  namespace: workloads
+  labels:
+    app.kubernetes.io/name: memory-workload
+    app.kubernetes.io/part-of: workload-platform
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: memory-workload
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: io-workload
+  namespace: workloads
+  labels:
+    app.kubernetes.io/name: io-workload
+    app.kubernetes.io/part-of: workload-platform
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: io-workload

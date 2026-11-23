@@ -1,0 +1,53 @@
+# T7.7 - Monitor do balanceador com todas as replicas fora
+# origem das requisicoes: VDI osboxes, destino VIP 150.165.85.77:8600/health
+# host da alteracao: vm-atividade5-k8s
+# data UTC: 2026-11-23
+
+$ kubectl -n workloads scale deployment/cpu-workload --replicas=0
+deployment.apps/cpu-workload scaled
+
+$ kubectl -n workloads get pods -l app.kubernetes.io/name=cpu-workload
+NAME                           READY   STATUS        RESTARTS   AGE
+cpu-workload-6dc4cd7db-hwwbk   1/1     Terminating   0          3m1s
+cpu-workload-6dc4cd7db-tjnbd   1/1     Terminating   0          3m1s
+
+== codigo HTTP externo a cada 5 s
+t=5s   http=200
+t=10s  http=200
+t=15s  http=200
+t=20s  http=000
+t=25s  http=503
+t=30s  http=503
+t=35s  http=503
+t=40s  http=503
+t=45s  http=503
+
+# 000 indica conexao encerrada sem resposta. 503 e a resposta do proprio
+# Octavia enquanto o membro esta em ERROR.
+
+$ openstack loadbalancer member list c336436d-7bea-473f-a92d-fd57024d02f2 -f value -c operating_status
+ERROR
+
+== retorno das replicas
+$ kubectl -n workloads scale deployment/cpu-workload --replicas=2
+deployment.apps/cpu-workload scaled
+
+$ kubectl -n workloads rollout status deployment/cpu-workload --timeout=180s
+deployment "cpu-workload" successfully rolled out
+
+$ kubectl -n workloads get pods -l app.kubernetes.io/name=cpu-workload
+NAME                           READY   STATUS    RESTARTS   AGE
+cpu-workload-6dc4cd7db-klpct   1/1     Running   0          3s
+cpu-workload-6dc4cd7db-w9nlq   1/1     Running   0          3s
+
+# 20 s depois
+$ openstack loadbalancer member list c336436d-7bea-473f-a92d-fd57024d02f2 -f value -c operating_status
+ONLINE
+
+$ curl -s -o /dev/null -w 'http=%{http_code}\n' http://150.165.85.77:8600/health
+http=200
+
+# O monitor usa HTTP /health, delay 5 s, timeout 4 s e 3 tentativas. A queda de
+# um pod nao altera o membro, porque o Service ainda tem uma replica pronta.
+# Somente com as duas replicas fora o NodePort deixa de aceitar conexao e o
+# membro passa a ERROR.

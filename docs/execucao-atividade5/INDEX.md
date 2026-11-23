@@ -39,6 +39,7 @@ Status possíveis: `pendente`, `em andamento`, `concluída`, `bloqueada`.
 | T3.4 | Confirmar nó Ready, versões e portas publicadas | concluída | [T3.4.md](T3.4.md) |
 | T3.5 | Registrar as evidências da fase 3 | concluída | [T3.5.md](T3.5.md) |
 | T3.6 | Acionar o plano alternativo se as portas não forem publicadas | concluída | [T3.6.md](T3.6.md) |
+| T3.7 | Aplicar e conferir a cota de CPU do container do Minikube | concluída | [T3.7.md](T3.7.md) |
 | T4.1 | Confirmar que as imagens são públicas no Docker Hub | concluída | [T4.1.md](T4.1.md) |
 | T4.2 | Publicar as três imagens como 1.1.0 | concluída | [T4.2.md](T4.2.md) |
 | T4.3 | Atualizar manifestos, README e relatório com a tag | concluída | [T4.3.md](T4.3.md) |
@@ -47,6 +48,8 @@ Status possíveis: `pendente`, `em andamento`, `concluída`, `bloqueada`.
 | T5.2 | Acompanhar rollouts e conferir pods, serviços e endpoints | concluída | [T5.2.md](T5.2.md) |
 | T5.3 | Testar /health, /work e /metrics nas portas locais | concluída | [T5.3.md](T5.3.md) |
 | T5.4 | Registrar as evidências da fase 5 | concluída | [T5.4.md](T5.4.md) |
+| T5.5 | Coletar logs, eventos e estado das sondas | concluída | [T5.5.md](T5.5.md) |
+| T5.6 | Aplicar PSA restricted, PDB e LimitRange | concluída | [T5.6.md](T5.6.md) |
 | T6.1 | Criar os três listeners nas portas 8600 a 8602 | concluída | [T6.1.md](T6.1.md) |
 | T6.2 | Criar pools, monitores e membros | concluída | [T6.2.md](T6.2.md) |
 | T6.3 | Criar o listener SSH na porta 2223 | concluída | [T6.3.md](T6.3.md) |
@@ -54,11 +57,14 @@ Status possíveis: `pendente`, `em andamento`, `concluída`, `bloqueada`.
 | T6.5 | Testar as três URLs externas | concluída | [T6.5.md](T6.5.md) |
 | T6.6 | Confirmar as URLs da A4 | concluída | [T6.6.md](T6.6.md) |
 | T6.7 | Registrar as evidências da fase 6 | concluída | [T6.7.md](T6.7.md) |
+| T6.8 | Medir a latência externa com 30 amostras por porta | concluída | [T6.8.md](T6.8.md) |
 | T7.1 | Excluir um pod e confirmar a recriação | concluída | [T7.1.md](T7.1.md) |
 | T7.2 | Confirmar a disponibilidade durante a falha | concluída | [T7.2.md](T7.2.md) |
 | T7.3 | Conferir o consumo com kubectl top | concluída | [T7.3.md](T7.3.md) |
 | T7.4 | Registrar as evidências da fase 7 | concluída | [T7.4.md](T7.4.md) |
 | T7.5 | Testar a persistência após minikube stop e start | concluída | [T7.5.md](T7.5.md) |
+| T7.6 | Atualizar com imagem inválida e executar rollback | concluída | [T7.6.md](T7.6.md) |
+| T7.7 | Testar o monitor do balanceador com todas as réplicas fora | concluída | [T7.7.md](T7.7.md) |
 | T8.1 | Confirmar as três URLs externas da A5 | concluída | [T8.1.md](T8.1.md) |
 | T8.2 | Confirmar as três URLs da A4 | concluída | [T8.2.md](T8.2.md) |
 | T8.3 | Confirmar que nenhum recurso do professor foi alterado | concluída | [T8.3.md](T8.3.md) |
@@ -74,10 +80,10 @@ Status possíveis: `pendente`, `em andamento`, `concluída`, `bloqueada`.
 | T10.5 | Preencher as referências com data de acesso | concluída | [T10.5.md](T10.5.md) |
 | T10.6 | Aplicar o checklist de revisão | concluída | [T10.6.md](T10.6.md) |
 | T10.7 | Exportar o PDF | concluída | [T10.7.md](T10.7.md) |
-| T11.1 | Revisar o README contra o estado real do deploy | pendente | — |
+| T11.1 | Revisar o README contra o estado real do deploy | concluída | [README](../../README.md) |
 | T11.2 | Fazer o commit e o push finais | pendente | — |
-| T11.3 | Preencher os 19 campos do formulário | pendente | — |
-| T11.4 | Preparar os slides da apresentação | pendente | — |
+| T11.3 | Preencher os 20 campos do formulário | concluída | [formulário](../formulario.md) |
+| T11.4 | Preparar os slides da apresentação | concluída | [apresentação](../apresentacao.md) |
 | T11.5 | Ensaiar a demonstração das três URLs | pendente | — |
 | T11.6 | Apresentar em 26/11/2026 | pendente | — |
 

@@ -1,0 +1,74 @@
+# T7.6 - Atualizacao progressiva com imagem invalida e rollback
+# origem das requisicoes: a propria VM, porta publicada 8000/health
+# data UTC: 2026-11-23
+
+== estado antes
+$ kubectl -n workloads rollout history deployment/cpu-workload
+REVISION  CHANGE-CAUSE
+2         <none>
+3         <none>
+
+$ kubectl -n workloads get deploy cpu-workload -o jsonpath="{.spec.template.spec.containers[0].image}"
+danielandersonss/poi-cpu:1.1.0
+
+# Um laco fez uma requisicao por segundo durante 80 s, comecando antes da
+# troca de imagem.
+
+$ kubectl -n workloads set image deployment/cpu-workload app=danielandersonss/poi-cpu:nao-existe
+deployment.apps/cpu-workload image updated
+
+$ kubectl -n workloads rollout status deployment/cpu-workload --timeout=10s
+Waiting for deployment "cpu-workload" rollout to finish: 1 out of 2 new replicas have been updated...
+error: timed out waiting for the condition
+
+$ kubectl -n workloads get pods -l app.kubernetes.io/name=cpu-workload
+NAME                           READY   STATUS             RESTARTS   AGE
+cpu-workload-6dc4cd7db-klpct   1/1     Running            0          5m33s
+cpu-workload-6dc4cd7db-w9nlq   1/1     Running            0          5m33s
+cpu-workload-7c556fcb85-tx7jv  0/1     ImagePullBackOff   0          25s
+
+$ kubectl -n workloads get rs -l app.kubernetes.io/name=cpu-workload
+NAME                      DESIRED   CURRENT   READY   AGE
+cpu-workload-64756c8798   0         0         0       14m
+cpu-workload-6dc4cd7db     2         2         2       5h19m
+cpu-workload-7c556fcb85   1         1         0       25s
+
+# maxUnavailable: 0 manteve as duas replicas antigas prontas. O pod novo nao
+# entrou no Service porque nunca ficou Ready.
+
+$ kubectl -n workloads rollout undo deployment/cpu-workload
+Warning: resource deployments/cpu-workload was previously managed with 'kubectl apply'.
+Rolling back will not update the kubectl.kubernetes.io/last-applied-configuration
+annotation, which may cause unexpected behavior on future 'kubectl apply' operations.
+deployment.apps/cpu-workload rolled back
+
+$ kubectl -n workloads rollout status deployment/cpu-workload --timeout=180s
+deployment "cpu-workload" successfully rolled out
+
+$ kubectl -n workloads get pods -l app.kubernetes.io/name=cpu-workload
+NAME                           READY   STATUS        RESTARTS   AGE
+cpu-workload-6dc4cd7db-klpct   1/1     Running       0          5m34s
+cpu-workload-6dc4cd7db-w9nlq   1/1     Running       0          5m34s
+cpu-workload-7c556fcb85-tx7jv  0/1     Terminating   0          26s
+
+$ kubectl -n workloads rollout history deployment/cpu-workload
+REVISION  CHANGE-CAUSE
+2         <none>
+4         <none>
+5         <none>
+
+# A revisao 4 foi a imagem invalida. O undo criou a revisao 5 com a imagem
+# 1.1.0.
+
+== requisicoes durante a janela
+$ cut -d" " -f2 /tmp/rr.log | sort | uniq -c
+     80 200
+total=80
+
+# As 80 requisicoes, uma por segundo, cobrem a tentativa de atualizacao e o
+# rollback. Nenhuma deixou de receber 200.
+
+# O undo nao atualiza a anotacao last-applied. O kubectl apply -k seguinte
+# reconciliou a anotacao com o manifesto.
+$ kubectl apply -k k8s/
+deployment.apps/cpu-workload unchanged

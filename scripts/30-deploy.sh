@@ -17,7 +17,7 @@ echo
 kubectl -n workloads get deployments,pods,services -o wide
 
 echo
-kubectl -n workloads get endpoints
+kubectl -n workloads get endpointslices
 
 echo
 echo "next step: run scripts/40-verify.sh"

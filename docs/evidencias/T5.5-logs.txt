@@ -1,0 +1,49 @@
+# T5.5 - Logs, eventos e sondas dos pods
+# host: vm-atividade5-k8s
+# data UTC: 2026-11-23
+
+== logs do cpu-workload, uma linha por pod
+[pod/cpu-workload-6dc4cd7db-w9nlq/app] cpu application listening on port 8000 (max 32 concurrent work units)
+[pod/cpu-workload-6dc4cd7db-klpct/app] cpu application listening on port 8000 (max 32 concurrent work units)
+
+# memory e io registraram tres tracebacks de ConnectionResetError desde o
+# inicio do no. Todos ocorreram quando o cliente encerrou a conexao antes da
+# resposta. O processo continuou atendendo e o contador failed permaneceu zero.
+$ kubectl -n workloads logs <pod> --timestamps | grep -c Traceback
+3
+
+== eventos recentes do namespace
+3m3s   Normal   Scheduled         pod/lr-test                        Successfully assigned workloads/lr-test to minikube
+2m59s  Normal   Killing           pod/lr-test                        Stopping container lr-test
+2m59s  Normal   Pulled            pod/lr-test                        Successfully pulled image "busybox:1.36"
+110s   Normal   Pulling           pod/cpu-workload-7c556fcb85-tx7jv  Pulling image "danielandersonss/poi-cpu:nao-existe"
+109s   Warning  Failed            pod/cpu-workload-7c556fcb85-tx7jv  Failed to pull image: not found
+109s   Warning  Failed            pod/cpu-workload-7c556fcb85-tx7jv  Error: ErrImagePull
+2m2s   Normal   BackOff           pod/cpu-workload-7c556fcb85-tx7jv  Back-off pulling image
+2m2s   Warning  Failed            pod/cpu-workload-7c556fcb85-tx7jv  Error: ImagePullBackOff
+98s    Normal   SuccessfulDelete  replicaset/cpu-workload-7c556fcb85  Deleted pod: cpu-workload-7c556fcb85-tx7jv
+
+== describe do pod cpu-workload-6dc4cd7db-klpct
+Containers:
+  app:
+    Image:          danielandersonss/poi-cpu:1.1.0
+    Image ID:       docker.io/danielandersonss/poi-cpu@sha256:e3d6931e83aa227b6095bce3b8b07bdd345f38be750261060f85a9c3d6ff1eb5
+    Port:           8000/TCP (http)
+    State:          Running
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     1
+      memory:  512Mi
+    Requests:
+      cpu:      250m
+      memory:   128Mi
+    Liveness:   http-get http://:http/health delay=10s timeout=2s period=20s failureThreshold=3
+    Readiness:  http-get http://:http/health delay=0s timeout=2s period=10s failureThreshold=3
+    Startup:    http-get http://:http/health delay=0s timeout=1s period=2s failureThreshold=15
+    Mounts:
+      /tmp from tmp (rw)
+
+# A sonda de startup tem 15 tentativas de 2 s, ou 30 s de tolerancia. A de
+# readiness tira o pod do Service apos tres falhas de 10 s. A de liveness
+# reinicia o processo apos tres falhas de 20 s.

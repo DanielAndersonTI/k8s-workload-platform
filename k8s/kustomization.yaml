@@ -9,3 +9,5 @@ resources:
   - memory-service.yaml
   - io-deployment.yaml
   - io-service.yaml
+  - limitrange.yaml
+  - pdb.yaml
