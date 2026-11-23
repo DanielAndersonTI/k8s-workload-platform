@@ -154,28 +154,31 @@ A A4 não é removida. A conferência prova que os dois ambientes coexistem.
 
 | ID | Tarefa | Estado |
 | --- | --- | --- |
-| T9.1 | Criar um arquivo por tarefa em `docs/execucao-atividade5/` | [ ] |
-| T9.2 | Registrar objetivo, comandos, saída, decisões e problemas | [ ] |
-| T9.3 | Ligar cada tarefa às evidências correspondentes | [ ] |
-| T9.4 | Revisar datas, IDs e coerência entre os registros | [ ] |
+| T9.1 | Criar um arquivo por tarefa em `docs/execucao-atividade5/` | [x] |
+| T9.2 | Registrar objetivo, comandos, saída, decisões e problemas | [x] |
+| T9.3 | Ligar cada tarefa às evidências correspondentes | [x] |
+| T9.4 | Revisar datas, IDs e coerência entre os registros | [x] |
 
 Cada arquivo segue o formato da Atividade 4: tabela de identificação, objetivo,
-comandos, o que aconteceu, saída, decisões e problemas.
+comandos, o que aconteceu, saída, decisões e problemas. Foram criados 66
+arquivos, das fases 0 a 10; o índice fica em `INDEX.md`.
 
 ## Fase 10 — Relatório final
 
 | ID | Tarefa | Estado |
 | --- | --- | --- |
-| T10.1 | Preencher as seções do modelo da disciplina | [ ] |
-| T10.2 | Escrever a síntese no estilo acadêmico treinado | [ ] |
-| T10.3 | Inserir as tabelas de VM, cluster, imagens e portas | [ ] |
-| T10.4 | Referenciar as evidências por ID | [ ] |
-| T10.5 | Preencher as referências com data de acesso | [ ] |
-| T10.6 | Aplicar o checklist de revisão | [ ] |
-| T10.7 | Exportar o PDF ou publicar o link de entrega | [ ] |
+| T10.1 | Preencher as seções do modelo da disciplina | [x] |
+| T10.2 | Escrever a síntese no estilo acadêmico treinado | [x] |
+| T10.3 | Inserir as tabelas de VM, cluster, imagens e portas | [x] |
+| T10.4 | Referenciar as evidências por ID | [x] |
+| T10.5 | Preencher as referências com data de acesso | [x] |
+| T10.6 | Aplicar o checklist de revisão | [x] |
+| T10.7 | Exportar o PDF ou publicar o link de entrega | [x] |
 
 O relatório final sintetiza decisões e resultados. Os comandos e as saídas
-brutas ficam no registro de execução.
+brutas ficam no registro de execução. A exportação gerou
+`docs/relatorio-final.pdf`, com 5 páginas. Restam no relatório apenas os campos
+de identificação do grupo e de matrícula.
 
 ## Fase 11 — Entrega e apresentação
 
