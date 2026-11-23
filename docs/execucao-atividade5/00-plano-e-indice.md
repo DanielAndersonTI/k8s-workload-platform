@@ -213,12 +213,12 @@ matrícula de Ranya e os dois e-mails, marcados com `[VERIFICAR]`.
 | --- | --- | --- |
 | T11.1 | Revisar o README em inglês contra o estado real do deploy | [x] |
 | T11.2 | Fazer o commit e o push finais | [ ] |
-| T11.3 | Preencher os 20 campos do formulário | [x] |
+| T11.3 | Preencher os campos do formulário | [x] |
 | T11.4 | Preparar os slides da apresentação | [x] |
 | T11.5 | Ensaiar a demonstração das três URLs | [ ] |
 | T11.6 | Apresentar em 26/11/2026 | [ ] |
 
-Os valores dos 20 campos estão em `docs/formulario.md`; o envio depende da
+Os valores do formulário estão em `docs/formulario.md`; o envio depende da
 revisão de Ranya. Os slides estão em `docs/apresentacao.md` e o roteiro da
 demonstração, em `docs/roteiro-demonstracao.md`.
 

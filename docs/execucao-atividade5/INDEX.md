@@ -82,7 +82,7 @@ Status possíveis: `pendente`, `em andamento`, `concluída`, `bloqueada`.
 | T10.7 | Exportar o PDF | concluída | [T10.7.md](T10.7.md) |
 | T11.1 | Revisar o README contra o estado real do deploy | concluída | [README](../../README.md) |
 | T11.2 | Fazer o commit e o push finais | pendente | — |
-| T11.3 | Preencher os 20 campos do formulário | concluída | [formulário](../formulario.md) |
+| T11.3 | Preencher os campos do formulário | concluída | [formulário](../formulario.md) |
 | T11.4 | Preparar os slides da apresentação | concluída | [apresentação](../apresentacao.md) |
 | T11.5 | Ensaiar a demonstração das três URLs | pendente | — |
 | T11.6 | Apresentar em 26/11/2026 | pendente | — |

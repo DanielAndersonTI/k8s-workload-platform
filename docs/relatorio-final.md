@@ -218,7 +218,6 @@ A tabela 7 apresenta os valores que serão transcritos no formulário, depois da
 | Identificador do grupo | `daniel-ranya` |
 | Nome | Daniel Anderson de Souza Silva; Ranya Duran Greco |
 | Matrícula | 0126015852-52M; [VERIFICAR: matrícula de Ranya] |
-| Participação | 50% para Daniel; 50% para Ranya |
 | Link do documento | https://github.com/DanielAndersonTI/k8s-workload-platform/blob/main/docs/relatorio-final.md |
 | Repositório GitHub | https://github.com/DanielAndersonTI/k8s-workload-platform |
 | ID da VM | `8c77dbe6-dd33-43ba-9d96-939ddfd5effa` |
