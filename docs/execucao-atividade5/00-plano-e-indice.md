@@ -78,15 +78,17 @@ entrega usa o link do arquivo no repositório e o PDF anexado no formulário.
 
 | ID | Tarefa | Estado |
 | --- | --- | --- |
-| T3.1 | Instalar Docker, `kubectl` e Minikube | [ ] |
-| T3.2 | Desabilitar o swap e ajustar o `fstab` | [ ] |
-| T3.3 | Iniciar o Minikube com 3 CPUs, 6 GB e as portas 8000 a 8002 | [ ] |
-| T3.4 | Confirmar nó `Ready`, versões e portas publicadas | [ ] |
-| T3.5 | Registrar as evidências `T3.1-versions` e `T3.2-node` | [ ] |
-| T3.6 | Acionar o plano alternativo se `--ports` não publicar as portas | [ ] |
+| T3.1 | Instalar Docker, `kubectl` e Minikube | [x] |
+| T3.2 | Desabilitar o swap e ajustar o `fstab` | [x] |
+| T3.3 | Iniciar o Minikube com 3 CPUs, 6 GB e as portas 8000 a 8002 | [x] |
+| T3.4 | Confirmar nó `Ready`, versões e portas publicadas | [x] |
+| T3.5 | Registrar as evidências `T3.1-versions` e `T3.2-node` | [x] |
+| T3.6 | Acionar o plano alternativo se `--ports` não publicar as portas | [x] |
 
 O plano alternativo é usar `kubectl port-forward` com units `systemd` ou
 reconfigurar o driver. A decisão só é tomada se a verificação de portas falhar.
+As portas 8000 a 8002 foram publicadas na primeira tentativa, então T3.6 não foi
+acionada.
 
 ## Fase 4 — Imagens
 
@@ -112,7 +114,7 @@ reconfigurar o driver. A decisão só é tomada se a verificação de portas fal
 | --- | --- | --- |
 | T6.1 | Criar os três listeners `app-*-atividade5` nas portas 8600 a 8602 | [ ] |
 | T6.2 | Criar os pools, monitores e membros das três aplicações | [ ] |
-| T6.3 | Criar o listener SSH `ssh-atividade5` na porta 2223 | [ ] |
+| T6.3 | Criar o listener SSH `ssh-atividade5` na porta 2223 | [x] |
 | T6.4 | Aguardar listeners, pools e membros ficarem `ONLINE` | [ ] |
 | T6.5 | Testar as três URLs externas nas portas 8600, 8601 e 8602 | [ ] |
 | T6.6 | Confirmar que as URLs da A4 em 8100 a 8102 continuam respondendo | [ ] |

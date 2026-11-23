@@ -1,0 +1,26 @@
+# T3.1 - Bootstrap da VM: versoes, Docker e swap
+# ambiente: vm-atividade5-k8s, acesso SSH pela porta 2223 do balanceador
+# data UTC: 2026-11-23T14:51:40Z
+
+$ docker --version
+Docker version 29.1.3, build 29.1.3-0ubuntu3~24.04.2
+
+$ kubectl version --client
+Client Version: v1.37.2
+Kustomize Version: v5.8.1
+
+$ minikube version
+minikube version: v1.39.0
+commit: 7a9f6a841470a207de8cf4bafcccee0969d8ba10
+
+$ systemctl is-active docker
+active
+
+$ swapon --show
+# sem saida: nenhum swap ativo
+
+$ grep -n swap /etc/fstab
+# sem entrada de swap
+
+# O bootstrap rodou como `sudo bash scripts/10-bootstrap.sh` e adicionou o
+# usuario ubuntu ao grupo docker. A sessao SSH seguinte ja tem acesso ao socket.

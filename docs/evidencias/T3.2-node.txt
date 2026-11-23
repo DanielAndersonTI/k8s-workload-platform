@@ -1,0 +1,51 @@
+# T3.2 - No Minikube, status do cluster e portas publicadas
+# ambiente: vm-atividade5-k8s, cluster minikube com driver Docker
+# data UTC: 2026-11-23T14:51:40Z
+
+$ kubectl get nodes -o wide
+NAME       STATUS   ROLES           AGE    VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION             CONTAINER-RUNTIME
+minikube   Ready    control-plane   111s   v1.37.0   192.168.49.2   <none>        Debian GNU/Linux 12 (bookworm)   6.8.0-87-generic (amd64)   containerd://2.3.4
+
+$ minikube status
+minikube
+type: Control Plane
+host: Running
+kubelet: Running
+apiserver: Running
+kubeconfig: Configured
+
+$ kubectl -n kube-system get pods --no-headers | awk '{print $1, $3}'
+coredns-559f6c778d-g4rvm Running
+etcd-minikube Running
+kindnet-67n7t Running
+kube-apiserver-minikube Running
+kube-controller-manager-minikube Running
+kube-proxy-4twzt Running
+kube-scheduler-minikube Running
+metrics-server-768f9f6999-nxbp9 Running
+storage-provisioner Running
+
+$ docker port minikube
+22/tcp -> 127.0.0.1:32768
+2376/tcp -> 127.0.0.1:32769
+5000/tcp -> 127.0.0.1:32770
+8443/tcp -> 127.0.0.1:32771
+30080/tcp -> 0.0.0.0:8000
+30080/tcp -> [::]:8000
+30081/tcp -> 0.0.0.0:8001
+30081/tcp -> [::]:8001
+30082/tcp -> 0.0.0.0:8002
+30082/tcp -> [::]:8002
+32443/tcp -> 127.0.0.1:32772
+
+$ ss -ltn | grep -E ':(8000|8001|8002)[[:space:]]'
+LISTEN 0 4096 0.0.0.0:8000 0.0.0.0:*
+LISTEN 0 4096 0.0.0.0:8001 0.0.0.0:*
+LISTEN 0 4096 0.0.0.0:8002 0.0.0.0:*
+LISTEN 0 4096 [::]:8000 [::]:*
+LISTEN 0 4096 [::]:8001 [::]:*
+LISTEN 0 4096 [::]:8002 [::]:*
+
+# O no passou de NotReady para Ready em menos de dois minutos.
+# As portas 8000 a 8002 estao publicadas no host e o plano alternativo T3.6
+# nao foi necessario.
