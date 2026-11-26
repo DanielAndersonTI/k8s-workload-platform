@@ -1,0 +1,44 @@
+# T7.11 - Reinicio por sonda liveness: cpu-workload
+# origem das requisicoes: VDI osboxes -> VIP 150.165.85.77:8600/health
+# host da alteracao: vm-atividade5-k8s
+# data UTC: 2026-11-26
+# o teste troca o caminho da sonda de liveness de /health para /sem-sonda;
+# a readiness continua em /health
+
+antes (pods em execucao):
+cpu-workload-6548d64ddb-5p4ls 0
+cpu-workload-6548d64ddb-s69rj 0
+
+$ kubectl -n workloads patch deployment cpu-workload --type=json \
+    -p='[{"op":"replace","path":"/spec/template/spec/containers/0/livenessProbe/httpGet/path","value":"/sem-sonda"}]'
+deployment.apps/cpu-workload patched
+deployment "cpu-workload" successfully rolled out
+
+base de restarts depois do rollout: 0
+t+1s restarts max=0
+t+12s restarts max=0
+t+23s restarts max=0
+t+35s restarts max=0
+t+46s restarts max=0
+t+57s restarts max=1
+
+depois:
+cpu-workload-59dc54c86f-ftpzx 1
+cpu-workload-59dc54c86f-hlwvx 1
+
+eventos da sonda:
+Killing   pod/cpu-workload-59dc54c86f-ftpzx  Container app failed liveness probe, will be restarted
+Unhealthy pod/cpu-workload-59dc54c86f-ftpzx  Liveness probe failed: HTTP probe failed with statuscode: 404
+
+$ kubectl -n workloads rollout undo deployment/cpu-workload
+deployment.apps/cpu-workload rolled back
+deployment "cpu-workload" successfully rolled out
+
+apos o undo:
+cpu-workload-6548d64ddb-n9xl6 0
+cpu-workload-6548d64ddb-wlkqn 0
+health 200
+
+# Tres falhas seguidas da sonda levam o kubelet a reiniciar o container. O pod
+# nao sai do Service por causa disso: a readiness continua respondendo em
+# /health. O undo devolve a sonda para /health e a porta externa segue em 200.

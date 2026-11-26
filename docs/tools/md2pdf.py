@@ -12,8 +12,8 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.pdfbase import pdfmetrics
-from reportlab.platypus import (Image, KeepTogether, Paragraph, SimpleDocTemplate,
-                                Spacer, Table, TableStyle)
+from reportlab.platypus import (Image, KeepTogether, PageBreak, Paragraph,
+                                SimpleDocTemplate, Spacer, Table, TableStyle)
 from reportlab.pdfgen import canvas as pdfcanvas
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -226,8 +226,11 @@ while i < len(lines):
     if ln.startswith("# "):
         flow.append(Paragraph(inline(ln[2:]), title))
     elif ln.startswith("## "):
-        in_refs = ln[3:].strip().lower().startswith("refer")
-        flow.append(Paragraph(inline(ln[3:]), h1))
+        heading = ln[3:].strip()
+        in_refs = heading.lower().startswith("refer")
+        if heading.lower().startswith("apêndice"):
+            flow.append(PageBreak())
+        flow.append(Paragraph(inline(heading), h1))
     elif ln.startswith("### "):
         flow.append(Paragraph(inline(ln[4:]), h2))
     else:
@@ -248,6 +251,6 @@ while i < len(lines):
 doc = SimpleDocTemplate(OUT, pagesize=A4, leftMargin=2.5 * cm, rightMargin=2.5 * cm,
                         topMargin=2.2 * cm, bottomMargin=2.2 * cm,
                         title="Relatório de implantação: plataforma Kubernetes",
-                        author="Daniel Anderson de Souza Silva")
+                        author="Daniel Anderson de Souza Silva; Ranya Duran Greco")
 doc.build(flow, canvasmaker=NumberedCanvas)
 print(OUT)

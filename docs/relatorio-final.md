@@ -10,9 +10,11 @@
 
 ## Introdução
 
-Três serviços HTTP com perfis distintos de consumo compõem a carga deste trabalho: CPU, memória e entrada e saída. Os três expõem o mesmo contrato, com `/health`, `/work` e `/metrics`, e recebem limites de recursos próprios. O ambiente da Atividade 4 permanece em execução no mesmo projeto.
+Três serviços HTTP com perfis distintos de consumo compõem a carga deste trabalho: CPU, memória e entrada e saída. Os três expõem o mesmo contrato, com `/health`, `/work` e `/metrics`, e recebem limites de recursos próprios. O ambiente da Atividade 4 permaneceu em execução durante a implantação, e a coexistência foi verificada em 23/11.
 
 A implantação usa uma VM dedicada, um cluster Minikube de nó único e o balanceador compartilhado da turma. O objetivo é expor os serviços em portas externas estáveis, preservar o ambiente anterior e verificar o comportamento sob falha. O método combina manifestos versionados, scripts de provisionamento e uma evidência por tarefa.
+
+Cada tarefa tem um registro em `docs/execucao-atividade5/` e uma saída de comando sanitizada em `docs/evidencias/`.
 
 A figura 1 resume o caminho entre o cliente externo e os pods.
 
@@ -39,6 +41,8 @@ A instância `vm-atividade5-k8s` foi criada no projeto `Provisionamento`, com a 
 
 O sabor oferece 4 vCPU, 8192 MB e 20 GB, mas a VM enxerga 7941 MB e 19 GB em `/`. A diferença é compatível com firmware, kernel e sistema de arquivos. O disco atendeu ao sistema, às imagens e ao nó, sem volume extra.
 
+A criação seguiu `scripts/00-openstack.sh` em três passos: gerar o par `atividade5`, criar `sg-atividade5` e criar a instância. Em seguida, a conferência verificou o estado `ACTIVE`, o fim do `cloud-init` e o acesso SSH pelo listener 2223.
+
 ### 1.2 Rede e acesso
 
 O acesso não usa IP flutuante: a entrada administrativa é o listener TCP `ssh-atividade5`, na porta 2223 do balanceador, que encaminha para a porta 22 da VM. O grupo `sg-atividade5` libera SSH, as portas 8000 a 8002 e ICMP apenas a partir de `10.5.8.0/22`.
@@ -47,7 +51,9 @@ As portas 8000 a 8002 atendem aos membros do pool, não a clientes externos. A d
 
 ### 1.3 Recursos preservados
 
-A VM `vm-daniel-ranya`, os três containers e os listeners 8100 a 8102 e 2222 da Atividade 4 permaneceram ligados. A instância `ERROR` do balanceador `poi-atividades` já existia e não foi tocada; as criações ocorreram na instância `ACTIVE`, referenciada por ID.
+A VM `vm-daniel-ranya`, os três containers e os listeners 8100 a 8102 e 2222 da Atividade 4 permaneceram ligados na verificação de coexistência. A instância `ERROR` do balanceador `poi-atividades` já existia e não foi tocada; as criações ocorreram na instância `ACTIVE`, referenciada por ID.
+
+A coexistência foi verificada em 23/11, com as três URLs da A4 em 200 (T8.1). Em 26/11, as três portas retornavam 503; o ambiente da A4 não responde e não é necessário para a A5.
 
 Nenhum recurso de outro grupo foi criado, alterado ou removido. As imagens `1.0.0` da Atividade 4 foram republicadas por engano durante a publicação da A5 e restauradas em seguida, com digest confirmado; o incidente está na seção 4.
 
@@ -66,7 +72,7 @@ O cluster usa o driver Docker do Minikube, escolhido porque o Docker já fazia p
 | Kubernetes | v1.37.0 |
 | containerd | 2.3.4 |
 
-O nó ficou `Ready` com os pods de sistema em execução, e o `metrics-server` foi habilitado para permitir a leitura de consumo por `kubectl top`. A verificação ocorreu antes de qualquer manifesto de aplicação, o que separa falha de instalação de falha de deploy.
+O nó ficou `Ready` com os pods de sistema em execução. A sequência foi `10-bootstrap.sh`, para Docker, `kubectl`, Minikube e swap; `20-cluster.sh`, para o cluster, as portas e a cota; e a habilitação do `metrics-server`, que permite a leitura por `kubectl top`. O `30-deploy.sh` rodou apenas depois dessa conferência, o que separa falha de instalação de falha de deploy.
 
 ### 2.2 Dimensionamento do cluster
 
@@ -75,6 +81,8 @@ O nó foi iniciado com 3 vCPU e 6144 MB, mas o limite efetivo depende do cgroup 
 O `20-cluster.sh` passou a aplicar `docker update --cpus=3` e a encerrar com erro se a cota continuar ausente (DOCKER, 2026a). Depois do ajuste, `cpu.max` mostra `300000 100000` e `memory.max`, 6442450944 bytes, o que dá 3 vCPU e 6 GiB ao container. O kubelet anuncia 4 vCPU e 8131812Ki.
 
 Os percentuais de `kubectl top` usam a capacidade anunciada, não a cota. A soma dos requests dos seis pods, 1,2 vCPU e 1,5 GiB, cabe nas duas leituras. A soma dos limites, 5 vCPU e 5 GiB, excede os 4 vCPU anunciados e fica abaixo dos 6 GiB de memória; limites são tetos, não reservas.
+
+A cota de 3 vCPU e 6 GiB deixa 1 vCPU e 2 GiB para o sistema e para o Docker, e ainda acomoda os requests de 1,2 vCPU e 1,5 GiB.
 
 ### 2.3 Decisões de configuração
 
@@ -98,6 +106,8 @@ Os limites seguem o perfil de cada aplicação (KUBERNETES, 2026g): CPU recebe r
 
 A política `restricted` do namespace rejeita pods fora do perfil, e o `LimitRange` define recursos para containers que os omitem (KUBERNETES, 2026d, 2026f). Os `PodDisruptionBudget` de `minAvailable: 1` preservam uma réplica em interrupção voluntária (KUBERNETES, 2026e). As sondas em `/health` separam início, entrada no Service e reinício (KUBERNETES, 2026c).
 
+Com um nó, o PDB não protege contra a queda do host; ele impede que uma manutenção voluntária remova as duas réplicas ao mesmo tempo. Não há Ingress nem HPA: o balanceador termina o tráfego externo e a carga é fixa, coberta por duas réplicas.
+
 ## 3. Deploy das aplicações
 
 ### 3.1 Imagens
@@ -111,6 +121,10 @@ As imagens foram construídas em 23 de novembro de 2026, para `linux/amd64`, e p
 | I/O | `danielandersonss/poi-io:1.1.0` | 8000 | 30082 | 8602 |
 
 Os digests publicados foram `e3d6931e83aa` para CPU, `dc65bb896626` para memória e `875c7f03f4ac` para I/O. O `docker pull` na VM devolveu os mesmos identificadores, o que liga o manifesto à imagem baixada, com conferência nas evidências T4.1 e T4.4.
+
+As três aplicações retomam os perfis da Atividade 4, com o mesmo contrato `/health`, `/work` e `/metrics` e a mesma porta interna 8000. A diferença está na orquestração por Kubernetes e nos limites por pod.
+
+Os tetos de `size` consideram os limites de cada pod. Memória admite 256 MiB por requisição e quatro execuções, cerca de 1 GiB; I/O admite 32 MiB e 16 execuções, 512 MiB, dentro do `emptyDir` de 1Gi. CPU usa 300 iterações como teto de duração, e a faixa inválida recebe 400; a saturação recebe 503.
 
 ### 3.2 Manifestos
 
@@ -150,11 +164,19 @@ As medições partiram da VDI, que tem rota para a VIP `150.165.85.77`. Cada por
 
 As 180 requisições retornaram 200, com média entre 19,8 ms e 25,8 ms e p95 entre 21,7 ms e 32,8 ms. A primeira chamada ao perfil de I/O, antes da estabilização do pool, levou 322 ms, enquanto as 30 amostras finais ficaram entre 19,1 ms e 38,7 ms.
 
+As linhas da A4 registram a medição de 23/11, durante a verificação de coexistência. Em 26/11, essas três portas retornavam 503, e a A5 não depende delas.
+
 As três portas novas responderam também a `/work` e `/metrics`. CPU devolveu o hash de dez iterações, memória devolveu 32 MiB alocados e o checksum, e I/O devolveu 1 MiB lido e escrito, sempre com o mesmo contrato.
 
 ### 3.5 Testes de falha
 
-Um pod do `cpu-workload` foi excluído enquanto um laço na VDI fazia uma requisição a cada 0,2 s. O Deployment repôs a réplica e o Service manteve a segunda atendendo, e o laço completou 232 requisições, todas com 200.
+A exclusão de um pod não apareceu no cliente nos perfis de memória e de I/O. Foram 67 requisições à porta 8601 e 66 à porta 8602, todas com 200, enquanto o Deployment repunha a réplica em cerca de 23 s (T7.8). O mesmo teste em CPU, em 23/11, registrou 232 requisições, também sem falha.
+
+Sem réplica pronta, a porta externa deixa de atender. Na memória, o 200 durou até 19 s. O código 000 marcou a ausência de resposta HTTP, e o balanceador devolveu 503 aos 30 s; o retorno ao 200 veio aos 68 s. No I/O, a sequência foi 19 s, 26 s e 71 s, em 238 amostras (T7.9).
+
+O `rollout restart` do `cpu-workload`, amostrado a cada 0,2 s, rendeu 35 respostas 200 em 35 requisições. As réplicas novas subiram antes do encerramento das antigas, e a porta 8600 não ficou sem endpoint pronto (T7.10).
+
+Com a sonda de liveness apontando para um caminho inexistente, o kubelet reiniciou o container aos 57 s. O evento registrou `Liveness probe failed: 404`, a readiness continuou em `/health` e o pod permaneceu no Service. O `rollout undo` restaurou a sonda e a porta respondeu 200 (T7.11).
 
 Uma atualização para a imagem `nao-existe` foi rejeitada pelo kubelet: o pod novo ficou em `ImagePullBackOff`, e as duas réplicas antigas continuaram prontas. O `rollout undo` restaurou a imagem `1.1.0` sem interrupção. Um laço de uma requisição por segundo registrou 80 respostas 200 em 80 s.
 
@@ -170,6 +192,8 @@ O acesso direto à rede `provider` não funciona a partir da VDI. A administraç
 
 O cluster tem um único nó, e o teste de falha remove uma réplica, não o nó; a queda do nó interrompe as três aplicações até o reinício do Minikube. A persistência foi verificada, mas não há réplica em outro host.
 
+Não há retorno automático depois do reinício da VM: o Docker sobe no boot, mas o container do Minikube tem política `no` e fica parado. Um `docker start` isolado deixa o nó `Ready` com as NodePorts fora, porque as entradas de DNS do nó só são recriadas no `minikube start`. A recuperação exige o `minikube start` e a conferência das três URLs (T7.12).
+
 O `--cpus=3` do driver Docker não criou cota no Minikube v1.39.0, e a cota só existiu após `docker update`. O script passou a verificar `CpuQuota` e a falhar quando zero, sem o que o relatório descreveria um limite inexistente.
 
 O monitor do balanceador observa a porta do nó, não o pod. Uma réplica lenta ou reiniciada não altera o estado do membro enquanto a outra responder. A cobertura de falha parcial fica com as sondas do Kubernetes.
@@ -180,7 +204,9 @@ A soma dos limites de CPU excede a capacidade anunciada do nó. O Kubernetes ace
 
 ## Considerações finais
 
-Os três serviços foram implantados, expostos e testados sob falha, com o ambiente da Atividade 4 preservado. A verificação cobriu 180 requisições de latência, 232 durante a exclusão de um pod e 80 durante a atualização inválida e o rollback. Todas retornaram 200.
+Os três serviços foram implantados, expostos e testados sob falha, com a coexistência com a Atividade 4 verificada em 23/11. A verificação cobriu 180 requisições de latência, 232 durante a exclusão de um pod e 80 durante a atualização inválida e o rollback. Todas retornaram 200.
+
+Em 26/11, os testes foram repetidos nos perfis de memória e I/O. A queda total de réplicas, o rollout e a sonda de liveness também foram medidos, e as três portas externas terminaram em 200.
 
 O limite principal é o nó único: não há tolerância à queda da VM, apenas à queda de réplicas. O balanceador também concentra a entrada administrativa e o tráfego, o que torna sua indisponibilidade um ponto único. Concluímos que a plataforma atende ao escopo da atividade e que a operação exige atenção a esses dois pontos.
 

@@ -1,0 +1,26 @@
+# T7.10 - Rollout restart sob carga: cpu-workload
+# origem das requisicoes: VDI osboxes -> VIP 150.165.85.77:8600/health
+# host da alteracao: vm-atividade5-k8s
+# data UTC: 2026-11-26
+# laco de 0,2 s durante toda a atualizacao
+
+$ kubectl -n workloads rollout restart deployment/cpu-workload
+deployment.apps/cpu-workload restarted
+Waiting for deployment "cpu-workload" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "cpu-workload" rollout to finish: 1 old replicas are pending termination...
+deployment "cpu-workload" successfully rolled out
+
+amostras: 35
+codigos: 200=35
+primeira nao-200: nenhuma
+transicoes: t+0s 200
+
+== pods ao final
+cpu-workload-6548d64ddb-n9xl6   1/1 Terminating 0 64s
+cpu-workload-6548d64ddb-wlkqn   1/1 Terminating 0 61s
+cpu-workload-76bb8bf7c6-58drm   1/1 Running     0 12s
+cpu-workload-76bb8bf7c6-j8rnc   1/1 Running     0 9s
+
+# A estrategia padrao do Deployment sobe uma replica nova antes de encerrar a
+# antiga. As 35 requisicoes feitas durante a troca receberam 200, e o
+# balanceador nao chegou a ver a porta do no sem endpoint.

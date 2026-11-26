@@ -1,0 +1,39 @@
+# T7.8 - Falha controlada de um pod: memory-workload e io-workload
+# origem das requisicoes: VDI osboxes -> VIP 150.165.85.77:8601 e 8602/health
+# host da exclusao: vm-atividade5-k8s
+# data UTC: 2026-11-26
+# laco de 0,2 s por porta; o pod foi excluido logo no inicio do laco
+
+== exclusao no memory-workload
+pod alvo: memory-workload-5c5457c6f6-9lq6t
+$ kubectl -n workloads delete pod memory-workload-5c5457c6f6-9lq6t
+pod "memory-workload-5c5457c6f6-9lq6t" deleted from workloads namespace
+deployment "memory-workload" successfully rolled out
+
+amostras: 67
+codigos: 200=67
+primeira nao-200: nenhuma
+transicoes: t+0s 200
+
+== pods do memory-workload depois
+memory-workload-5c5457c6f6-4sdct   1/1 Running 0 23s    10.244.0.16
+memory-workload-5c5457c6f6-tgvw5   1/1 Running 0 3m41s  10.244.0.13
+
+== exclusao no io-workload
+pod alvo: io-workload-86b5954796-42tjf
+$ kubectl -n workloads delete pod io-workload-86b5954796-42tjf
+pod "io-workload-86b5954796-42tjf" deleted from workloads namespace
+deployment "io-workload" successfully rolled out
+
+amostras: 66
+codigos: 200=66
+primeira nao-200: nenhuma
+transicoes: t+0s 200
+
+== pods do io-workload depois
+io-workload-86b5954796-fqkz5   1/1 Running 0 23s    10.244.0.17
+io-workload-86b5954796-rc9qj   1/1 Running 0 2m26s  10.244.0.14
+
+# O Deployment repôs a replica em cerca de 23 s. Nos dois perfis, o Service
+# manteve a segunda replica atendendo e nenhuma das 133 requisicoes externas
+# deixou de receber 200.

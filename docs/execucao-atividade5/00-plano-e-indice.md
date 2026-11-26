@@ -153,6 +153,11 @@ requisições retornaram 200; a média ficou entre 19,8 ms e 25,8 ms. Evidência
 | T7.5 | Testar a persistência após `minikube stop` e `minikube start` | [x] |
 | T7.6 | Atualizar com imagem inválida e executar rollback | [x] |
 | T7.7 | Testar o monitor do balanceador com todas as réplicas fora | [x] |
+| T7.8 | Repetir a falha de um pod nos perfis de memória e I/O | [x] |
+| T7.9 | Derrubar todas as réplicas nos perfis de memória e I/O | [x] |
+| T7.10 | Reiniciar o Deployment de CPU sob carga | [x] |
+| T7.11 | Reiniciar um container pela sonda de liveness | [x] |
+| T7.12 | Reiniciar a VM e recuperar o cluster | [x] |
 
 T7.5 foi executada. Os seis pods voltaram a `Running`, as portas 8000 a 8002
 continuaram publicadas e as três aplicações responderam em seguida; evidência em
@@ -165,6 +170,12 @@ continuaram atendendo, o novo pod ficou em `ImagePullBackOff` e o `rollout undo`
 restaurou a imagem. T7.7 mostrou que o membro do pool só sai quando todas as
 réplicas estão fora, porque o monitor observa a porta do nó. As evidências estão
 em `T7.6-rollout.txt` e `T7.7-monitor.txt`.
+
+Em 26/11, T7.8 a T7.11 repetiram os testes nos três perfis: a exclusão de um pod
+não apareceu no cliente, a queda de todas as réplicas levou a 503 e voltou ao 200,
+o `rollout restart` e a sonda de liveness não retiraram o pod do Service. T7.12
+registrou o reinício da VM: o container do Minikube não volta sozinho e a
+recuperação exige `minikube start`, que refaz o DNS do nó.
 
 ## Fase 8 — Conferência do ambiente anterior
 
@@ -204,22 +215,22 @@ arquivos, das fases 0 a 10; o índice fica em `INDEX.md`.
 
 O relatório final sintetiza decisões e resultados. Os comandos e as saídas
 brutas ficam no registro de execução. A exportação gerou
-`docs/relatorio-final.pdf`, com 8 páginas. Restam no relatório apenas a
-matrícula de Ranya e os dois e-mails, marcados com `[VERIFICAR]`.
+`docs/relatorio-final.pdf`, com 10 páginas. O formulário já contém as
+matrículas e os e-mails das duas integrantes.
 
 ## Fase 11 — Entrega e apresentação
 
 | ID | Tarefa | Estado |
 | --- | --- | --- |
 | T11.1 | Revisar o README em inglês contra o estado real do deploy | [x] |
-| T11.2 | Fazer o commit e o push finais | [ ] |
+| T11.2 | Fazer o commit e o push finais | [x] |
 | T11.3 | Preencher os campos do formulário | [x] |
 | T11.4 | Preparar os slides da apresentação | [x] |
 | T11.5 | Ensaiar a demonstração das três URLs | [ ] |
 | T11.6 | Apresentar em 26/11/2026 | [ ] |
 
-Os valores do formulário estão em `docs/formulario.md`; o envio depende da
-revisão de Ranya. Os slides estão em `docs/apresentacao.md` e o roteiro da
+Os valores do formulário estão em `docs/formulario.md`; o envio é feito por
+cada integrante. Os slides estão em `docs/apresentacao.md` e o roteiro da
 demonstração, em `docs/roteiro-demonstracao.md`.
 
 ## Os dois relatórios

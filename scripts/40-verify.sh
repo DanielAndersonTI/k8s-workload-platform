@@ -33,7 +33,7 @@ for port in $LB_PORTS; do
 done
 
 echo
-echo "A4 endpoints preserved"
+echo "A4 endpoints (previous activity, informational)"
 for port in $A4_PORTS; do
   show_health "http://${LB_VIP}:${port}/health"
 done

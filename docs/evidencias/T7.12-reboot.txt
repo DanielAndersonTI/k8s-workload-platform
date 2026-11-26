@@ -1,0 +1,68 @@
+# T7.12 - Reinicio da VM e recuperacao do cluster
+# host: vm-atividade5-k8s (10.5.11.226), acesso por SSH na porta 2223
+# data UTC: 2026-11-26
+# o reboot foi feito com 'systemctl reboot' por SSH, sem a CLI do OpenStack
+
+== depois do reboot
+$ systemctl is-enabled docker
+enabled
+$ docker inspect -f '{{.HostConfig.RestartPolicy.Name}}' minikube
+no
+$ docker ps -a --filter name=minikube --format '{{.Names}} {{.Status}}'
+minikube Exited (137) 2 minutes ago
+
+# O Docker sobe no boot, mas o container do Minikube tem politica 'no' e nao
+# volta sozinho. O kubelet tambem nao volta com o container.
+
+== primeira tentativa de recuperacao
+$ docker start minikube
+minikube
+$ minikube status
+host: Running
+kubelet: Stopped
+apiserver: Stopped
+$ docker exec minikube systemctl start kubelet
+$ kubectl get node
+minikube Ready control-plane
+$ kubectl -n workloads get pods
+seis pods Running
+
+# O no voltou a Ready, mas as NodePorts nao respondiam:
+$ docker exec minikube curl -s -o /dev/null -w '%{http_code}\n' http://10.244.0.6:8000/health
+200
+$ docker exec minikube curl -s -o /dev/null -w '%{http_code}\n' http://192.168.49.2:30080/health
+000
+$ kubectl -n kube-system get pods
+coredns-559f6c778d-g4rvm   0/1   Running
+$ kubectl -n kube-system logs kube-proxy-4twzt --tail 30
+Failed to watch node: dial tcp: lookup control-plane.minikube.internal on 192.168.49.1:53: no such host
+$ docker exec minikube getent hosts control-plane.minikube.internal
+FALHOU
+
+# O container reiniciado perdeu as entradas de /etc/hosts que o driver Docker
+# do Minikube cria para 'control-plane.minikube.internal' e
+# 'host.minikube.internal'. Sem elas, o kube-proxy nao alcanca o apiserver e
+# nao programa as NodePorts, e o CoreDNS fica sem o plugin kubernetes.
+
+== segunda tentativa, pelo caminho suportado
+$ minikube stop
+1 node stopped.
+$ minikube start
+Done! kubectl is now configured to use "minikube" cluster
+$ docker exec minikube getent hosts control-plane.minikube.internal
+192.168.49.2    control-plane.minikube.internal
+$ docker exec minikube getent hosts host.minikube.internal
+192.168.49.1    host.minikube.internal
+$ docker inspect -f '{{json .HostConfig.PortBindings}}' minikube
+{"30080/tcp":[{"HostIp":"","HostPort":"8000"}],"30081/tcp":[{"HostIp":"","HostPort":"8001"}],"30082/tcp":[{"HostIp":"","HostPort":"8002"}]}
+$ kubectl -n kube-system get pods
+todos os pods 1/1 Running
+$ for p in 8600 8601 8602; do curl -s -o /dev/null -w "$p %{http_code}\n" http://150.165.85.77:$p/health; done
+8600 200
+8601 200
+8602 200
+
+# Conclusao: o reinicio preserva dados e configuração, mas não há retorno
+# automático. A recuperação correta é 'minikube start', que refaz as entradas
+# de DNS do nó e mantém as portas publicadas; 'docker start' isolado deixa o
+# nó pronto e as NodePorts fora.

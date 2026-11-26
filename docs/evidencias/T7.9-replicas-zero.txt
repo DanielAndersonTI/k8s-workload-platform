@@ -1,0 +1,46 @@
+# T7.9 - Todas as replicas fora e retorno: memory-workload e io-workload
+# origem das requisicoes: VDI osboxes -> VIP 150.165.85.77:8601 e 8602/health
+# host da alteracao: vm-atividade5-k8s
+# data UTC: 2026-11-26
+# laco de 0,2 s por porta; a escala para zero ocorreu no inicio do laco
+
+== memory-workload
+$ kubectl -n workloads scale deployment/memory-workload --replicas=0
+deployment.apps/memory-workload scaled
+$ kubectl -n workloads get pods -l app.kubernetes.io/name=memory-workload
+No resources found in workloads namespace.
+
+amostras: 209
+codigos: 000=4 200=97 503=108
+primeira nao-200: t+19s 000
+primeiro 503: t+30s
+transicoes: t+0s 200 | t+19s 000 | t+30s 503 | t+68s 200
+
+$ kubectl -n workloads scale deployment/memory-workload --replicas=2
+deployment.apps/memory-workload scaled
+deployment "memory-workload" successfully rolled out
+
+== io-workload
+$ kubectl -n workloads scale deployment/io-workload --replicas=0
+deployment.apps/io-workload scaled
+$ kubectl -n workloads get pods -l app.kubernetes.io/name=io-workload
+No resources found in workloads namespace.
+
+amostras: 238
+codigos: 000=3 200=93 503=142
+primeira nao-200: t+19s 000
+primeiro 503: t+26s
+transicoes: t+0s 200 | t+19s 000 | t+26s 503 | t+71s 200
+
+$ kubectl -n workloads scale deployment/io-workload --replicas=2
+deployment.apps/io-workload scaled
+deployment "io-workload" successfully rolled out
+
+# Sem endpoint pronto, o NodePort para de aceitar conexao (000) e o
+# balanceador passa a devolver 503 em vez de encaminhar. Com as replicas de
+# volta, a porta externa responde 200 em 68 s e 71 s, contados do inicio do
+# laco, o que inclui os 45 s de espera do proprio teste com zero replicas.
+#
+# O estado do membro no pool nao foi lido nesta rodada: a CLI do OpenStack da
+# VDI aponta para um host que nao resolve. A leitura do membro esta em T7.7,
+# feita em 23/11 com sessao ativa.

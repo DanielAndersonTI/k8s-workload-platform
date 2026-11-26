@@ -2,9 +2,10 @@
 
 Three HTTP services with distinct resource profiles, packaged as containers and
 scheduled by Kubernetes on a single-node Minikube cluster. An OpenStack Octavia
-load balancer publishes the services on ports 8600 to 8602. The existing
-listeners on 8100 to 8102 remain assigned to the previous Docker Compose
-environment, so both deployments coexist.
+load balancer publishes the services on ports 8600 to 8602. The previous Docker
+Compose environment keeps its listeners on 8100 to 8102 and 2222; coexistence
+was verified on 23 November 2026 (evidence T8.1). The A4 environment does not
+need to stay up for this platform and was not used after that check.
 
 The services expose the same contract: `GET /health`, `GET /work?size=N`, and
 `GET /metrics`. The first is used by Kubernetes probes and by the load balancer
@@ -158,19 +159,21 @@ listeners.
 ```bash
 kubectl -n workloads get deployments,pods,services -o wide
 kubectl -n workloads rollout status deployment/cpu-workload
+kubectl -n workloads top pods
 curl -sS http://127.0.0.1:8000/health
+curl -sS http://127.0.0.1:8000/metrics
 curl -sS "http://127.0.0.1:8002/work?size=1024"
 ```
 
 From outside the VM, the same checks use the load balancer address on ports
-8600, 8601, and 8602. Ports 8100 to 8102 must keep answering for the previous
-environment, which is a separate validation.
+8600, 8601, and 8602. Ports 8100 to 8102 belong to the previous environment;
+they document coexistence but are not part of this platform's validation.
 
 ## Documentation
 
 - [Service behavior and design context](docs/background.md)
 - [Evidence policy](docs/evidencias/README.md)
-- [Final deployment report](docs/relatorio-final.md)
+- [Final deployment report](docs/relatorio-final.md) and its [PDF](docs/relatorio-final.pdf)
 - [Form answers](docs/formulario.md)
-- [Presentation plan](docs/apresentacao.md)
+- [Presentation plan](docs/apresentacao.md) and its [PDF](docs/apresentacao.pdf)
 - [Demonstration script](docs/roteiro-demonstracao.md)

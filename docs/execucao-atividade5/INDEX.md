@@ -65,6 +65,11 @@ Status possíveis: `pendente`, `em andamento`, `concluída`, `bloqueada`.
 | T7.5 | Testar a persistência após minikube stop e start | concluída | [T7.5.md](T7.5.md) |
 | T7.6 | Atualizar com imagem inválida e executar rollback | concluída | [T7.6.md](T7.6.md) |
 | T7.7 | Testar o monitor do balanceador com todas as réplicas fora | concluída | [T7.7.md](T7.7.md) |
+| T7.8 | Repetir a falha de um pod nos perfis de memória e I/O | concluída | [T7.8.md](T7.8.md) |
+| T7.9 | Derrubar todas as réplicas nos perfis de memória e I/O | concluída | [T7.9.md](T7.9.md) |
+| T7.10 | Reiniciar o Deployment de CPU sob carga | concluída | [T7.10.md](T7.10.md) |
+| T7.11 | Reiniciar um container pela sonda de liveness | concluída | [T7.11.md](T7.11.md) |
+| T7.12 | Reiniciar a VM e recuperar o cluster | concluída | [T7.12.md](T7.12.md) |
 | T8.1 | Confirmar as três URLs externas da A5 | concluída | [T8.1.md](T8.1.md) |
 | T8.2 | Confirmar as três URLs da A4 | concluída | [T8.2.md](T8.2.md) |
 | T8.3 | Confirmar que nenhum recurso do professor foi alterado | concluída | [T8.3.md](T8.3.md) |
@@ -81,7 +86,7 @@ Status possíveis: `pendente`, `em andamento`, `concluída`, `bloqueada`.
 | T10.6 | Aplicar o checklist de revisão | concluída | [T10.6.md](T10.6.md) |
 | T10.7 | Exportar o PDF | concluída | [T10.7.md](T10.7.md) |
 | T11.1 | Revisar o README contra o estado real do deploy | concluída | [README](../../README.md) |
-| T11.2 | Fazer o commit e o push finais | pendente | — |
+| T11.2 | Fazer o commit e o push finais | concluída | — |
 | T11.3 | Preencher os campos do formulário | concluída | [formulário](../formulario.md) |
 | T11.4 | Preparar os slides da apresentação | concluída | [apresentação](../apresentacao.md) |
 | T11.5 | Ensaiar a demonstração das três URLs | pendente | — |
@@ -97,6 +102,6 @@ Status possíveis: `pendente`, `em andamento`, `concluída`, `bloqueada`.
 | `T4.*` | imagens públicas, build, digests e pull na VM |
 | `T5.*` | aplicação, pods, serviços, endpoints e respostas locais |
 | `T6.*` | listeners, membros e URLs externas da A5 e da A4 |
-| `T7.*` | falha de pod, consumo e persistência após reinício |
+| `T7.*` | falha de pod, réplicas, rollout, sondas, consumo e reinício |
 | `T8.*` | coexistência final entre A5 e A4 |
 | `T10.*` | relatório final em Markdown e PDF |

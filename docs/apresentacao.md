@@ -15,7 +15,7 @@ Grupo `daniel-ranya`
 
 Daniel Anderson de Souza Silva · Ranya Duran Greco
 
-23 de novembro de 2026
+26 de novembro de 2026
 
 ---
 
@@ -26,7 +26,8 @@ Daniel Anderson de Souza Silva · Ranya Duran Greco
 - VM Ubuntu 24.04 com 4 vCPU e 8 GB
 - Cluster Minikube de nó único
 - Exposição pelo balanceador compartilhado da turma
-- Atividade 4 preservada nos listeners 8100 a 8102
+- Coexistência com a Atividade 4 verificada em 23/11 (T8.1)
+- A A5 não depende do ambiente da A4
 
 ---
 
@@ -87,6 +88,18 @@ Driver Docker, swap desligado, `metrics-server` habilitado.
 
 ---
 
+## Aplicações
+
+- Mesmo contrato nas três: `/health`, `/work?size=N`, `/metrics`
+- CPU: 1 a 300 iterações; 32 execuções simultâneas
+- Memória: 1 a 256 MiB; 4 execuções, até 1 GiB
+- I/O: 1 a 32768 KiB; 16 execuções dentro do `emptyDir` de 1Gi
+- Faixa inválida recebe 400; saturação recebe 503
+- Código único em `apps/server.py`, com entrypoint por perfil
+- `Dockerfile` com `ARG PROFILE`, UID 10001, porta 8000 e imagens `1.1.0`
+
+---
+
 ## Segurança e disponibilidade
 
 - Pod Security Admission `restricted` no namespace
@@ -123,17 +136,19 @@ Instância `ACTIVE` referenciada por ID; a instância em `ERROR` não foi tocada
 | Memória A4 | 200 em 30 | 20,5 ms | 24,1 ms |
 | I/O A4 | 200 em 30 | 19,8 ms | 21,7 ms |
 
-180 requisições, todas 200.
+180 requisições, todas 200. As linhas da A4 registram a medição de 23/11; em
+26/11, essas portas estavam fora do ar.
 
 ---
 
 ## Testes de falha
 
-- **Pod excluído:** 232 requisições, nenhuma falha
+- **Pod excluído (CPU):** 232 requisições, nenhuma falha
+- **Pod excluído (memória, I/O):** 67 e 66 requisições, todas 200
+- **Sem réplica pronta:** 503 do balanceador, 200 de volta em 68 s e 71 s
+- **Rollout restart sob carga:** 35 requisições, todas 200
+- **Liveness:** container reiniciado aos 57 s, pod segue no Service
 - **Imagem inválida + rollback:** 80 requisições em 80 s, todas 200
-- **Todas as réplicas fora:** membro do pool vai a `ERROR`
-- **Retorno das réplicas:** membro volta a `ONLINE` em 20 s
-- **`minikube stop` e `start`:** seis pods voltam a `Running`
 
 O Service só entrega a endpoints prontos.
 
@@ -142,11 +157,23 @@ O Service só entrega a endpoints prontos.
 ## Limitações
 
 - Nó único: queda da VM interrompe as três aplicações
+- Sem retorno automático após reboot: exige `minikube start`
 - Balanceador concentra entrada administrativa e tráfego
 - Monitor do LB observa a porta do nó, não o pod
 - Sem rota direta da VDI para a rede `provider`
 - Tracebacks de conexão abortada nos logs de memória e I/O
 - Limites de CPU somam 5 vCPU, acima dos 4 anunciados
+
+---
+
+## Documentação e reprodutibilidade
+
+- Relatório em `docs/relatorio-final.md` e PDF
+- 77 registros de execução em `docs/execucao-atividade5/`
+- 33 arquivos de evidência em `docs/evidencias/`
+- Scripts `00` a `50`: OpenStack, bootstrap, cluster, deploy, verificação e balanceador
+- `k8s/`: 11 objetos em 9 arquivos, aplicados com `kubectl apply -k`
+- Reprodução passo a passo no Apêndice B do relatório
 
 ---
 
@@ -157,11 +184,13 @@ for p in 8600 8601 8602; do
   curl -sS http://150.165.85.77:$p/health
   curl -sS "http://150.165.85.77:$p/work?size=10"
 done
+curl -sS http://150.165.85.77:8600/metrics
 ```
 
 ```bash
 kubectl -n workloads get deploy,pods,svc
 kubectl -n workloads get pdb,limitrange
+kubectl -n workloads top pods
 ```
 
 Obrigado.
