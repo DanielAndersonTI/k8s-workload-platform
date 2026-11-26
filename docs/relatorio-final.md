@@ -210,11 +210,11 @@ OPENSTACK. *Octavia documentation*. [S. l.]: OpenStack Foundation, 2026. Dispon�
 
 ## Apêndice A — Campos do formulário de entrega
 
-A tabela 7 apresenta os valores que serão transcritos no formulário, depois da revisão da segunda integrante.
+A tabela 7 apresenta os valores para preenchimento do formulário de entrega.
 
 | Campo | Valor |
 | --- | --- |
-| E-mail | [danielanderson.silva@copin.ufcg.edu.br]; [ranya.greco@copin.ufcg.edu.br] |
+| E-mail | danielanderson.silva@copin.ufcg.edu.br; ranya.greco@copin.ufcg.edu.br |
 | Identificador do grupo | `daniel-ranya` |
 | Nome | Daniel Anderson de Souza Silva; Ranya Duran Greco |
 | Matrícula | 0126015852-52M; 0126015844-44M |
