@@ -4,7 +4,7 @@
 | --- | --- |
 | Grupo | `daniel-ranya` |
 | Alunos | Daniel Anderson de Souza Silva; Ranya Duran Greco |
-| Matrículas | 0126015852-52M; [VERIFICAR: matrícula de Ranya] |
+| Matrículas | 0126015852-52M; 0126015844-44M |
 | Repositório | https://github.com/DanielAndersonTI/k8s-workload-platform |
 | Data da implantação | 22 e 23 de novembro de 2026 |
 
