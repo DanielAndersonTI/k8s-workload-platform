@@ -214,10 +214,10 @@ A tabela 7 apresenta os valores que serão transcritos no formulário, depois da
 
 | Campo | Valor |
 | --- | --- |
-| E-mail | [VERIFICAR: e-mail de Daniel]; [VERIFICAR: e-mail de Ranya] |
+| E-mail | [danielanderson.silva@copin.ufcg.edu.br]; [ranya.greco@copin.ufcg.edu.br] |
 | Identificador do grupo | `daniel-ranya` |
 | Nome | Daniel Anderson de Souza Silva; Ranya Duran Greco |
-| Matrícula | 0126015852-52M; [VERIFICAR: matrícula de Ranya] |
+| Matrícula | 0126015852-52M; 0126015844-44M |
 | Link do documento | https://github.com/DanielAndersonTI/k8s-workload-platform/blob/main/docs/relatorio-final.md |
 | Repositório GitHub | https://github.com/DanielAndersonTI/k8s-workload-platform |
 | ID da VM | `8c77dbe6-dd33-43ba-9d96-939ddfd5effa` |
